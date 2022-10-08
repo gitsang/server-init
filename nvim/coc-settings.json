@@ -1,0 +1,8 @@
+{
+    "suggest.noselect": true,
+    "coc.preferences.formatOnSaveFiletypes": ["css", "markdown", "go", "javascript"],
+    "prettier.trailingComma": "es5",
+    "prettier.semi": false,
+    "prettier.singleQuote": true,
+    "#prettier.tabWidth": 4
+}

@@ -1,0 +1,379 @@
+#!/bin/bash
+
+# =============== Environment Variable =============== #
+
+# path
+export PATH=$PATH:.
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib:./libs:.
+
+# java
+export JAVA_HOME=/usr/local/java/jdk1.8.0_281
+export JRE_HOME=${JAVA_HOME}/jre
+export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib:/usr/local/lib
+export PATH=$PATH:${JAVA_HOME}/bin
+
+# golang
+export GOROOT=/usr/local/go
+export GOPATH=/go
+export GOBIN=$GOPATH/bin
+export GOPROXY=https://goproxy.cn
+export GO111MODULE=on
+export PATH=$PATH:$GOROOT/bin:$GOBIN
+export GONOPROXY='*.sang.ink,*.yealink.com'
+export GONOSUMDB='*.sang.ink,*.yealink.com'
+export GOPRIVATE='gitlab.home.sang.ink,gitcode.yealink.com'
+#export GOCACHE=off
+
+# libreoffice
+export LibreOffice_PATH=/opt/libreoffice7.1/program
+export PATH=$PATH:$LibreOffice_PATH
+
+# term
+export TERM=xterm
+
+# =============== Common specific aliases and functions =============== #
+
+# fuck
+fuck() {
+    if [ $# -eq 1 ] && [ "$1" == "-" ]; then
+        su - root
+    elif [ $# -gt 0 ]; then
+        sudo $@
+    else
+        su root
+    fi
+}
+
+# list
+alias l='ls --color'
+alias ll='ls -la --color'
+alias lh='ls -lh --color'
+alias la='ls -la --color'
+
+# file system
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# change dir
+alias ..='cd ../'
+
+alias ..2='cd ../../'
+alias ...='cd ../../'
+
+alias ..3='cd ../../../'
+alias ....='cd ../../../'
+
+alias ..4='cd ../../../../'
+alias .....='cd ../../../../'
+
+alias ..5='cd ../../../../../'
+alias ......='cd ../../../../../'
+
+alias ..6='cd ../../../../../../'
+alias .......='cd ../../../../../../'
+
+# network
+wip() {
+    echo -e "\n\e[32m=====cip=====\e[0m"
+    curl cip.cc
+
+    echo -e "\n\e[32m=====default=====\e[0m"
+    curl ip.p3terx.com
+
+    echo -e "\n\e[32m=====v6=====\e[0m"
+    curl -6 ip.p3terx.com
+
+    echo -e "\n\e[32m=====v4=====\e[0m"
+    curl -4 ip.p3terx.com
+}
+alias ports='netstat -ntlp | sort'
+
+# other
+alias pss='ps auxf --sort=cmd | grep -v "\[*\]$" | grep -v -E "bash|ps -ef|grep"'
+alias eplib='export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib && echo $LD_LIBRARY_PATH'
+alias tailf='tail -f'
+alias space='df -h | grep -vE "overlay|tmpfs|shm|udev|efi|loop"'
+fixmod() {
+    chmod 0644 `find ./ -type f`
+    chmod 0755 `find ./ -type d`
+}
+
+# docker
+alias rekcod="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock nexdrew/rekcod"
+alias dps='docker ps --format --no-trunc "{{.Names}}:\n\tid: {{.ID}}\n\timage: {{.Image}}\n\tcommand: {{.Command}}\n\tnetwork: {{.Networks}}\n\tmount: {{.Mounts}}\n\tports: {{.Ports}}\n\tstatus: {{.Status}}\n\tcreated: {{.RunningFor}}\n\tstatus: {{.State}}\n\tsize: {{.Size}}\n"'
+alias dpsj='curl -XGET --unix-socket /var/run/docker.sock http://localhost/containers/json | jq'
+alias rcli='docker run -it --rm redis redis-cli'
+alias redis-cli='docker run -it --rm redis redis-cli'
+
+# vim
+alias vi='nvim'
+alias nv='nvim'
+
+# antlr
+alias antlr4='java -Xmx500M -cp "/usr/local/lib/antlr-4.10.1-complete.jar:$CLASSPATH" org.antlr.v4.Tool'
+alias grun='java -Xmx500M -cp "/usr/local/lib/antlr-4.10.1-complete.jar:$CLASSPATH" org.antlr.v4.gui.TestRig'
+
+# cache
+dropcaches() {
+    free -h | grep Mem
+    sync; echo 1 > /proc/sys/vm/drop_caches
+    sync; echo 2 > /proc/sys/vm/drop_caches
+    sync; echo 3 > /proc/sys/vm/drop_caches
+    free -h | grep Mem
+}
+
+# jobs
+alias j='jobs'
+kj() {
+    kill -9 %$@
+}
+
+# tmpfile
+
+tmp() {
+    TMPROOT=/root/.tmp/
+    DATE=$(date +%s)
+    OPT=$1
+    case ${OPT} in
+        dir)
+            TMPDIR=${TMPROOT}/${DATE}
+            mkdir ${TMPDIR}
+            echo -n "Change Dir? (Default:Y) [Y/n]"
+            read input
+            case $input in
+                [yY][eE][sS]|[yY]|"")
+                    cd ${TMPDIR}
+                    ;;
+            esac
+            ;;
+        *)
+            TMPFILE=${TMPROOT}/${DATE}.${OPT}
+            nvim ${TMPFILE}
+            ;;
+    esac
+}
+
+# git
+alias gs='git status'
+alias gb='git branch'
+alias gd='git diff'
+alias gdt='git difftool'
+alias gl='git lg'
+alias glg='git log'
+alias gls='git log --stat'
+alias glp='git log -p'
+alias ga='git add'
+alias gaa='git add --all .'
+alias gcm='git commit -m'
+alias gps='git push'
+alias gpl='git pull'
+alias gf='git fetch'
+gpsu() {
+    BRANCH=$(git branch | grep "*" | awk '{print $2}')
+    git push -u origin ${BRANCH}
+}
+gau() {
+    git add --all .
+
+    BRANCH=$(git branch | grep "*" | awk '{print $2}')
+    MODIFIED=$(git status | grep -E "modified" | awk '{print $NF}')
+    DELETED=$(git status | grep -E "deleted" | awk '{print $NF}')
+    NEW=$(git status | grep -E "new file" | awk '{print $NF}')
+    RENAMED=$(git status | grep -E "renamed" | awk '{print $NF}')
+
+    git commit -m "update(auto): auto commit
+
+MODIFIED:
+${MODIFIED}
+
+DELETED:
+${DELETED}
+
+NEW:
+${NEW}
+
+RENAMED:
+${RENAMED}
+    "
+    git push origin ${BRANCH}
+    git status
+}
+gsubm() {
+    USER=chensx
+    DATE=`date '+%Y%m%d_%H%M'`
+    SRC_BRANCH=`git branch | grep "*" | awk '{print $2}'`
+    SUBMIT_BRANCH=${1:-${SRC_BRANCH}}
+    DST_BRANCH=${SUBMIT_BRANCH}_submit_${DATE}_${USER}
+    while true; do
+        echo -e "submit to branch \e[31m${SUBMIT_BRANCH}\e[0m_submit_${DATE}_\e[31m${USER}\e[0m, \c"
+        read -r -p "continue? (Default:Y) [Y/n] " input
+        case $input in
+            [yY][eE][sS]|[yY]|"")
+                git push origin ${SRC_BRANCH}:${DST_BRANCH}
+                break
+                ;;
+            [nN][oO]|[nN])
+                break
+                ;;
+            *)
+                echo "Invalid input..." ;;
+        esac
+    done
+}
+gpst() {
+    TYPE=${1}
+    SUBJ=${2}
+    USER=chensx
+    SRC_BRANCH=`git branch | grep "*" | awk '{print $2}'`
+    DST_BRANCH=${TYPE}-${SUBJ}-${USER}
+    while true; do
+        echo -e "submit to branch \e[31m${DST_BRANCH}\e[0m, \c"
+        read -r -p "continue? (Default:Y) [Y/n] " input
+        case $input in
+            [yY][eE][sS]|[yY]|"")
+                git push origin ${SRC_BRANCH}:${DST_BRANCH}
+                break
+                ;;
+            [nN][oO]|[nN])
+                break
+                ;;
+            *)
+                echo "Invalid input..." ;;
+        esac
+    done
+}
+grb() {
+    if [ ${#1} -gt 3 ]; then
+        git rebase -i ${1}
+    else
+        git rebase -i HEAD~${1}
+    fi
+}
+grst() {
+    if [ ${1} == "-h" ]; then
+        git reset --hard ${2}
+    elif [ ${1} == "-s" ]; then
+        git reset --soft ${2}
+    else
+        git reset $@
+    fi
+}
+
+# trash
+alias del='trash'
+trash() {
+    case "$1" in
+        "help"|"-h")
+            echo "usage: trash [ clean(-c) | recover(-r) | backup(-b) | help(-h) ]"
+            ;;
+        "recover"|"-r")
+            shift
+            TRASH_DIR=~/.trash
+            REAL_PATH=`echo $@ | awk -F'-%TRASH%-' '{print $2}' | sed 's/##/\//g'`
+
+            if [ -f "$REAL_PATH" ]; then
+                echo "file exist: $REAL_PATH"
+            elif [ -d "$REAL_PATH" ]; then
+                echo "folder exist: $REAL_PATH"
+            else
+                mv $@ $REAL_PATH
+                echo "recover $@ to $REAL_PATH"
+            fi
+            ;;
+        "clean"|"-c")
+            TRASH_DIR=~/.trash
+            MAX_TRASH_SIZE=20000000
+            TRASH_SIZE=`du --max-depth=0 $TRASH_DIR | awk '{print $1}'`
+
+            while [ $TRASH_SIZE -gt $MAX_TRASH_SIZE ]
+            do
+                echo "trash-size: $TRASH_SIZE > $MAX_TRASH_SIZE clean up:" && ls $TRASH_DIR | grep -v total | head -1
+                ls $TRASH_DIR | grep -v total | head -1 | xargs -i -n1 rm -fr $TRASH_DIR/{}
+                TRASH_SIZE=`du --max-depth=0 $TRASH_DIR | awk '{print $1}'`
+            done
+            echo "trash-size: $TRASH_SIZE"
+            ;;
+        "backup"|"-b")
+            BACKUP_DIR=~/.trash
+            REAL_PATH=`realpath $2`
+            BACKUP_NAME=`realpath $2 | sed 's/\//##/g'`
+            TIME=`date "+%Y%m%d-%H%M%S"`
+            BACKUP_PATH=$BACKUP_DIR/$TIME-%BACKUP%-$BACKUP_NAME
+
+            if [ "$REAL_PATH" != "/" ]; then
+                mkdir -p $BACKUP_DIR
+                cp -r $REAL_PATH $BACKUP_PATH
+                echo "backup $REAL_PATH to $BACKUP_PATH"
+            fi
+            ;;
+        *)
+            TRASH_DIR=~/.trash
+            REAL_PATH=`realpath $@`
+            TRASH_NAME=`realpath $@ | sed 's/\//##/g'`
+            TIME=`date "+%Y%m%d-%H%M%S"`
+            TRASH_PATH=$TRASH_DIR/$TIME-%TRASH%-$TRASH_NAME
+
+            if [ "$REAL_PATH" != "/" ]; then
+                mkdir -p $TRASH_DIR
+                mv $REAL_PATH $TRASH_PATH
+                echo "del $REAL_PATH to $TRASH_PATH"
+            fi
+            ;;
+    esac
+}
+
+# proxy
+alias px='proxy'
+list_proxy() {
+    echo http_proxy=$http_proxy
+    echo https_proxy=$https_proxy
+    echo ftp_proxy=$ftp_proxy
+}
+proxy() {
+    PROXY_HOST=127.0.0.1
+    case "$1" in
+        "--show")
+            echo ${proxy}
+            ;;
+        "-l"|"--list")
+            echo PROXY_HOST=$PROXY_HOST
+            list_proxy
+            ;;
+        "-c"|"--clean")
+            export proxy=
+            export {http,https,ftp}_proxy=""
+            list_proxy
+            ;;
+        "-s"|"--set")
+            case "$2" in
+                "ts")
+                    export proxy=ts
+                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1080";;
+                "us")
+                    export proxy=us
+                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1081";;
+                "cn")
+                    export proxy=cn
+                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1082";;
+                "ho")
+                    export proxy=ho
+                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1083";;
+                *)
+                    ;;
+            esac
+            list_proxy
+            ;;
+        *)
+            echo "help:"
+            echo "    -h, --help           help"
+            echo "    -l, --list           list current proxy"
+            echo "    -c, --clean          clean proxy"
+            echo "    -s, --set [location] set proxy"
+            echo "              us         (1081)"
+            echo "              cn         (1082)"
+            echo "              ho         (1083)"
+            list_proxy
+            ;;
+    esac
+}
