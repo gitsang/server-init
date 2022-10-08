@@ -9,6 +9,12 @@ basic() {
     apt autoremove -y
 }
 
+centos_basic() {
+    yum update -y
+    yum install -y zip unzip wget curl
+    yum install -y sysstat iotop iftop
+}
+
 install_node() {
     curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
     apt install -y nodejs
@@ -83,21 +89,6 @@ install_docker() {
         -o ~/.zsh/completion/_docker-compose
 }
 
-install_docker-compose() {
-    # Add Docker’s official GPG key
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-    # set up repository
-    echo \
-        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-        $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt update
-
-    # install
-    apt install docker-compose-plugin
-}
-
 show_help() {
     # usage
     echo "Usage: ${0} Option"
@@ -121,6 +112,9 @@ case $1 in
     basic) ## install basic
         basic
         ;;
+    centos) ## install basic for centos
+        centos_basic
+        ;;
     node) ## install node
         install_node
         ;;
@@ -138,9 +132,6 @@ case $1 in
         ;;
     docker) ## install docker
         install_docker
-        ;;
-    docker-compose) ## install docker-compose
-        install_docker-compose
         ;;
     *)
         show_help
