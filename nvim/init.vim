@@ -28,6 +28,7 @@ set background=dark
 set number
 set showcmd
 set wildmenu
+set wildoptions=
 
 " Indent
 filetype on
@@ -159,6 +160,9 @@ call plug#begin()
     " Formater
     "--------------------
 
+    "[diff]"
+        Plug 'will133/vim-dirdiff'
+
     "[markdown preview]"
 
         Plug 'plasticboy/vim-markdown', { 'for': ['markdown'] }
@@ -205,6 +209,15 @@ call plug#begin()
     "[markdown-toc]"
 
         Plug 'mzlogin/vim-markdown-toc'
+            let g:vmt_auto_update_on_save = 1
+            let g:vmt_dont_insert_fence = 0
+            let g:vmt_fence_text = 'markdown-toc'
+            let g:vmt_fence_closing_text = '/markdown-toc'
+            let g:vmt_fence_hidden_markdown_style = ''
+            let g:vmt_cycle_list_item_markers = 0
+            let g:vmt_list_item_char = '-'
+            let g:vmt_include_headings_before = 1
+            let g:vmt_list_indent_text = '  '
             " :GenToc
 
     "[git gutter]"
@@ -522,6 +535,15 @@ function! GoTest(...)
         execute '!go test -v . -test.run' a:1 '| less'
     else
         execute '!go test -v ./... | less'
+    endif
+endfunction
+
+:command -nargs=* GoRun call GoRun(<f-args>)
+function! GoRun(...)
+    if a:0
+        execute '!go run' a:1 '| less'
+    else
+        execute '!go run main.go | less'
     endif
 endfunction
 
