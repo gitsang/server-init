@@ -7,18 +7,19 @@ export PATH=$PATH:.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib:./libs:.
 
 # java
-export JAVA_HOME=/usr/local/java/jdk1.8.0_281
+export JAVA_HOME=/usr/local/java/jdk-18.0.2.1
 export JRE_HOME=${JAVA_HOME}/jre
 export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib:/usr/local/lib
 export PATH=$PATH:${JAVA_HOME}/bin
 
 # golang
-export GOROOT=/usr/local/go
+#export GOROOT=/usr/local/go
 export GOPATH=/go
 export GOBIN=$GOPATH/bin
 export GOPROXY=https://goproxy.cn
 export GO111MODULE=on
-export PATH=$PATH:$GOROOT/bin:$GOBIN
+#export PATH=$PATH:$GOROOT/bin:$GOBIN
+export PATH=$PATH:$GOBIN
 export GONOPROXY='*.sang.ink,*.yealink.com'
 export GONOSUMDB='*.sang.ink,*.yealink.com'
 export GOPRIVATE='gitlab.home.sang.ink,gitcode.yealink.com'
@@ -30,6 +31,7 @@ export PATH=$PATH:$LibreOffice_PATH
 
 # term
 export TERM=xterm
+export HISTSIZE=1000000
 
 # =============== Common specific aliases and functions =============== #
 
@@ -41,6 +43,30 @@ fuck() {
         sudo $@
     else
         su root
+    fi
+}
+
+# nvim diff
+dirdiff() {
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    nvim $@ -c "DirDiff $DIR1 $DIR2"
+}
+
+# swagger
+alias swagger='docker run --rm -it  --user $(id -u):$(id -g) -e GOPATH=$(go env GOPATH):/go -v $HOME:$HOME -w $(pwd) quay.io/goswagger/swagger'
+
+# golang
+gov() {
+    echo "current go version is: " $(go version)
+    echo "optional go version is: " $(ls ~/sdk)
+    echo "select go version: "
+    read version
+    if [ -f "${GOBIN}/${version}" ]; then
+        rm -f ${GOBIN}/go
+        ln -s ${GOBIN}/${version} ${GOBIN}/go
+    else
+        echo "invalid version ${version}"
     fi
 }
 
