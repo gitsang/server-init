@@ -1,14 +1,16 @@
 [credential]
     helper = store
 [user]
-    name = gitsang
+    name = sang
     email = sang.chen@outlook.com
+
+
+[init]
+    defaultBranch = main
 [core]
     autocrlf = input
     editor = nvim
     quotepath = false
-
-
 [push]
     default = simple
 [gui]
@@ -17,8 +19,12 @@
     commitencoding = utf-8
 [svn]
     pathnameencoding = utf-8
-
-
+[merge]
+    tool = vimdiff
+[mergetool]
+    trustExitCode = true
+[pull]
+    rebase = false
 [alias]
     lg = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
 [pager]
@@ -27,8 +33,6 @@
     show = "git-split-diffs --color=16m | less -RFX"
 [split-diffs]
     theme-name = dark
-
-
 [diff]
     tool = nvimdiff
 [difftool]
@@ -38,12 +42,10 @@
     cmd = nvim -d $LOCAL $REMOTE
 
 
-[merge]
-    tool = vimdiff
-[mergetool]
-    trustExitCode = true
-[pull]
-    rebase = false
-
 [url "git@gitcode.yealink.com:"]
     insteadOf = https://gitcode.yealink.com/
+[url "git@gitlab.com:"]
+    insteadOf = https://gitlab.com/
+[http "https://gitlab.home.sang.ink"]
+    proxy = http://127.0.0.1:1083
+    sslVerify = true
