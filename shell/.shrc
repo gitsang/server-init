@@ -2,6 +2,10 @@
 
 # =============== Environment Variable =============== #
 
+# display
+export REMOTE_IP=`who am i | sed 's/.*(\(.*\)).*/\1/g'`
+export DISPLAY=${REMOTE_IP}:0.0
+
 # path
 export PATH=$PATH:.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib:./libs:.
@@ -42,7 +46,7 @@ fuck() {
     elif [ $# -gt 0 ]; then
         sudo $@
     else
-        su root
+        sudo !!
     fi
 }
 
