@@ -157,11 +157,40 @@ call plug#begin()
             let g:airline_theme='luna'
 
     "--------------------
-    " Formater
+    " Tools
     "--------------------
 
     "[diff]"
+
         Plug 'will133/vim-dirdiff'
+
+    "[async]"
+
+        Plug 'tpope/vim-dispatch'
+
+       Plug 'skywind3000/asyncrun.vim'
+           let g:asyncrun_open = 8
+           let g:asyncrun_qfid = 10
+
+    "[git gutter]"
+
+        Plug 'airblade/vim-gitgutter'
+            let g:gitgutter_max_signs = 500
+            " map key
+            let g:gitgutter_map_keys = 0
+            " colors
+            let g:gitgutter_override_sign_column_highlight = 0
+
+            nmap <leader>g <Plug>(GitGutterPreviewHunk)
+            nmap <leader><backspace> <Plug>(GitGutterUndoHunk)
+
+    "--------------------
+    " Formater
+    "--------------------
+
+    "[commentary]"
+
+        Plug 'tpope/vim-commentary'
 
     "[markdown preview]"
 
@@ -219,18 +248,6 @@ call plug#begin()
             let g:vmt_include_headings_before = 1
             let g:vmt_list_indent_text = '  '
             " :GenToc
-
-    "[git gutter]"
-
-        Plug 'airblade/vim-gitgutter'
-            let g:gitgutter_max_signs = 500
-            " map key
-            let g:gitgutter_map_keys = 0
-            " colors
-            let g:gitgutter_override_sign_column_highlight = 0
-
-            nmap <leader>g <Plug>(GitGutterPreviewHunk)
-            nmap <leader><backspace> <Plug>(GitGutterUndoHunk)
 
     "--------------------
     " SideBar
@@ -495,10 +512,6 @@ call plug#begin()
             "   autocmd BufWritePre * undojoin | Neoformat
             " augroup END
 
-    "[commentary]"
-
-        Plug 'tpope/vim-commentary'
-
 call plug#end()
 
 "========================================
@@ -525,6 +538,15 @@ nmap <leader>s :source $MYVIMRC<cr>
 " no highlight
 nmap <leader><cr> :nohlsearch<cr>
 
+" exit terminal
+tnoremap <Esc> <C-\><C-n>
+
+" async run
+:command -nargs=* Run call Run(<f-args>)
+function! Run(...)
+    execute 'AsyncRun -mode=term -focus=0 -rows=8' join(a:000)
+endfunction
+
 "--------------------
 " Golang
 "--------------------
@@ -541,10 +563,15 @@ endfunction
 :command -nargs=* GoRun call GoRun(<f-args>)
 function! GoRun(...)
     if a:0
-        execute '!go run' a:1 '| less'
+        execute 'AsyncRun -mode=term -focus=0 -rows=8 go run' a:1
     else
-        execute '!go run main.go | less'
+        execute 'AsyncRun -mode=term -focus=0 -rows=8 go run main.go'
     endif
+endfunction
+
+:command -nargs=* GoNotImpl call GoNotImpl()
+function! GoNotImpl()
+    execute "normal opanic(\"not implement\")"
 endfunction
 
 "--------------------
