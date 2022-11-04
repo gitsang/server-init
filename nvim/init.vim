@@ -554,24 +554,113 @@ endfunction
 :command -nargs=* GoTest call GoTest(<f-args>)
 function! GoTest(...)
     if a:0
-        execute '!go test -v . -test.run' a:1 '| less'
+        execute 'AsyncRun -mode=term -focus=0 -rows=10 go test -v . -test.run' a:1
     else
-        execute '!go test -v ./... | less'
+        execute 'AsyncRun -mode=term -focus=0 -rows=10 go test -v ./...'
     endif
 endfunction
 
 :command -nargs=* GoRun call GoRun(<f-args>)
 function! GoRun(...)
     if a:0
-        execute 'AsyncRun -mode=term -focus=0 -rows=8 go run' a:1
+        execute 'AsyncRun -mode=term -focus=0 -rows=10 go run' a:1
     else
-        execute 'AsyncRun -mode=term -focus=0 -rows=8 go run main.go'
+        execute 'AsyncRun -mode=term -focus=0 -rows=10 go run main.go'
     endif
 endfunction
 
 :command -nargs=* GoNotImpl call GoNotImpl()
 function! GoNotImpl()
     execute "normal opanic(\"not implement\")"
+endfunction
+
+"snakecase: base_domain
+"camelcase: baseDomain
+"lispcase: base-domain
+"pascalcase: BaseDomain
+"titlecase: Base Domain
+
+:command -range -nargs=* GoTagsAdd <line1>,<line2>call GoTagsAdd(<f-args>)
+function! GoTagsAdd(...) range
+    let filename = expand('%:t')
+    let line = a:firstline . ',' . a:lastline
+    let cmds = ['!gomodifytags']
+    call add(cmds, '-file')
+    call add(cmds, filename)
+    call add(cmds, '-line')
+    call add(cmds, line)
+    call add(cmds, '--skip-unexported')
+    call add(cmds, '-w --quiet')
+    let cmd = join(cmds, " ")
+
+    if a:0 > 0
+        let tags = a:1
+        if tags != '--'
+            call add(cmds, '-add-tags')
+            call add(cmds, tags)
+        endif
+    else
+        call add(cmds, '-add-tags json')
+    endif
+
+    if a:0 > 1
+        let options = a:2
+        if options != '--'
+            call add(cmds, '-add-options')
+            call add(cmds, options)
+        endif
+    else
+        call add(cmds, '-add-options json=omitempty')
+    endif
+
+    if a:0 > 2
+        let transform = a:2
+        if transform != '--'
+            call add(cmds, '-transform')
+            call add(cmds, transform)
+        endif
+    else
+        call add(cmds, '-transform camelcase')
+    endif
+
+    execute join(cmds, " ")
+    return
+endfunction
+
+:command -range -nargs=* GoTagsRemove <line1>,<line2>call GoTagsRemove(<f-args>)
+function! GoTagsRemove(...) range
+    let filename = expand('%:t')
+    let line = a:firstline . ',' . a:lastline
+    let cmds = ['!gomodifytags']
+    call add(cmds, '-file')
+    call add(cmds, filename)
+    call add(cmds, '-line')
+    call add(cmds, line)
+    call add(cmds, '-transform camelcase')
+    call add(cmds, '--skip-unexported')
+    call add(cmds, '-w --quiet')
+    let cmd = join(cmds, " ")
+
+    let tags = 'json'
+    if a:0 > 0
+        let tags = a:1
+        if tags != '--'
+            call add(cmds, '-remove-tags')
+            call add(cmds, tags)
+        endif
+    endif
+
+    let options = 'json=omitempty'
+    if a:0 > 1
+        let options = a:2
+        if options != '--'
+            call add(cmds, '-remove-options')
+            call add(cmds, options)
+        endif
+    endif
+
+    execute join(cmds, " ")
+    return
 endfunction
 
 "--------------------
