@@ -17,6 +17,17 @@ set nobackup
 set nowritebackup
 
 "--------------------
+" Wild
+"--------------------
+
+set wildmenu
+set wildoptions=pum
+if &wildoptions =~# "pum"
+  cnoremap <expr> <up> pumvisible() ? '<left>' : '<up>'
+  cnoremap <expr> <down> pumvisible() ? '<right>' : '<down>'
+endif
+
+"--------------------
 " Appearance
 "--------------------
 
@@ -27,8 +38,6 @@ set nowrap
 set background=dark
 set number
 set showcmd
-set wildmenu
-set wildoptions=
 
 " Indent
 filetype on
@@ -168,9 +177,13 @@ call plug#begin()
 
         Plug 'tpope/vim-dispatch'
 
-       Plug 'skywind3000/asyncrun.vim'
+        Plug 'skywind3000/asyncrun.vim'
            let g:asyncrun_open = 8
            let g:asyncrun_qfid = 10
+
+    "[leader function]"
+
+        Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
 
     "[git gutter]"
 
@@ -496,6 +509,12 @@ call plug#begin()
                 \ 'go': ['go vet', 'go fmt'],
                 \ }
 
+    "[golang]"
+        " Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+        "     let g:go_code_completion_enabled = 0
+
+        Plug 'sebdah/vim-delve'
+
     "[vim-rego]"
 
         Plug 'tsandall/vim-rego'
@@ -544,7 +563,7 @@ tnoremap <Esc> <C-\><C-n>
 " async run
 :command -nargs=* Run call Run(<f-args>)
 function! Run(...)
-    execute 'AsyncRun -mode=term -focus=0 -rows=8' join(a:000)
+    execute 'AsyncRun -mode=term -focus=1 -rows=10' join(a:000)
 endfunction
 
 "--------------------
@@ -614,7 +633,7 @@ function! GoTagsAdd(...) range
     endif
 
     if a:0 > 2
-        let transform = a:2
+        let transform = a:3
         if transform != '--'
             call add(cmds, '-transform')
             call add(cmds, transform)
