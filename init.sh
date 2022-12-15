@@ -1,62 +1,142 @@
 #!/bin/bash
 
-basic() {
+# set -o errexit
+# set -o nounset
+# set -o pipefail
+# set -x
+
+OS=$(cat /etc/os-release  | grep '^ID=' | sed 's/^ID="\(.*\)"/\1/')
+
+# ========================= basic ========================= #
+
+install_basic_centos() {
+    yum update -y
+    yum install -y zip unzip wget curl
+    yum install -y sysstat iotop iftop
+    yum install -y python python3 python-devel python3-devel
+    yum autoremove -y
+}
+
+install_basic_ubuntu() {
     apt update
     apt upgrade -y
     apt install -y zip unzip wget curl
     apt install -y sysstat iotop iftop
+    apt install -y python python3 python-dev python3-dev
     apt install -y ca-certificates gnupg lsb-release
     apt autoremove -y
 }
 
-centos_basic() {
-    yum update -y
-    yum install -y zip unzip wget curl
-    yum install -y sysstat iotop iftop
+install_basic() {
+    if [[ $OS -eq "centos" ]]; then
+        install_basic_centos
+    elif [[ $OS -eq "ubuntu" ]]; then
+        install_basic_ubuntu
+    fi
+}
+
+# ========================= node ========================= #
+
+install_node_centos() {
+    #curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
+    sudo yum install -y nodejs npm
+    sudo yum install -y gcc-c++ make
+    sudo yum autoremove -y
+    node --version
+    npm --version
+}
+
+install_yarn_centos() {
+    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+    sudo yum install -y yarn
+    yarn --version
+}
+
+install_node_ubuntu() {
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    apt -y install nodejs
+    apt -y autoremove
 }
 
 install_node() {
-    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-    apt install -y nodejs
+    if [[ $OS -eq "centos" ]]; then
+        install_node_centos
+        install_yarn_centos
+    elif [[ $OS -eq "ubuntu" ]]; then
+        install_node_ubuntu
+    fi
+}
+
+# ========================= git ========================= #
+
+install_git_centos() {
+    yum install -y git
+    yum autoremove -y
+}
+
+install_git_ubuntu() {
+    apt install -y git
     apt autoremove -y
 }
 
 install_git() {
     CONFIG_PATH=./git
-
-    # install
-    apt install -y git
-    apt autoremove -y
+    if [[ $OS -eq "centos" ]]; then
+        install_git_centos
+    elif [[ $OS -eq "ubuntu" ]]; then
+        install_git_ubuntu
+    fi
 
     # configure
     cp ${CONFIG_PATH}/.gitconfig ~
     npm install -g git-split-diffs
 }
 
+# ========================= nvim ========================= #
+
 install_nvim() {
-    VERSION=v0.8.0
     CONFIG_PATH=./nvim
 
     # download and install
-    wget -c https://github.com/neovim/neovim/releases/download/${VERSION}/nvim.appimage
-    chmod u+x nvim.appimage
-    mv nvim.appimage /usr/local/bin/nvim
+    if [ ! -f /usr/bin/nvim ]; then
+        if [ ! -f nvim.appimage ]; then
+            curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+        fi
+        chmod u+x nvim.appimage
+        if [ ! -f /squashfs-root ]; then
+            if [ ! -f ./squashfs-root ]; then
+                ./nvim.appimage --appimage-extract
+            fi
+            ./squashfs-root/AppRun --version
+            mv squashfs-root /
+        fi
+        ln -s /squashfs-root/AppRun /usr/bin/nvim
+    fi
 
     # confignure
-    mkdir -p ~/.config/nvim/
-    cp ${CONFIG_PATH}/init.vim ~/.config/nvim/
-    cp ${CONFIG_PATH}/coc-settings.json ~/.config/nvim/
+    if [ ! -f ~/.config/nvim ]; then
+        mkdir -p ~/.config/nvim/
+        cp ${CONFIG_PATH}/init.vim ~/.config/nvim/
+        cp ${CONFIG_PATH}/coc-settings.json ~/.config/nvim/
+    fi
 
-    # start
-    /usr/local/bin/nvim
+    # python
+    pip3 install --user --upgrade pynvim
 }
+
+# ========================= zsh ========================= #
 
 install_zsh() {
     CONFIG_PATH=./shell
 
     # install
-    apt install -y zsh
-    apt autoremove -y
+    if [[ $OS -eq "centos" ]]; then
+        yum install -y zsh
+        yum autoremove -y
+    elif [[ $OS -eq "ubuntu" ]]; then
+        apt install -y zsh
+        apt autoremove -y
+    fi
     if [ ! -d "~/.zsh/plugins/zsh-autosuggestions" ]; then
         git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/plugins/zsh-autosuggestions
     fi
@@ -72,10 +152,14 @@ install_zsh() {
     chsh -s $(which zsh)
 }
 
+# ========================= fzf ========================= #
+
 install_fzf() {
     git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     ~/.fzf/install
 }
+
+# ========================= docker ========================= #
 
 install_docker() {
     # install
@@ -88,6 +172,8 @@ install_docker() {
         -L https://raw.githubusercontent.com/docker/compose/v2.5.0/contrib/completion/zsh/_docker-compose \
         -o ~/.zsh/completion/_docker-compose
 }
+
+# ========================= help ========================= #
 
 show_help() {
     # usage
@@ -110,10 +196,7 @@ show_help() {
 
 case $1 in
     basic) ## install basic
-        basic
-        ;;
-    centos) ## install basic for centos
-        centos_basic
+        install_basic
         ;;
     node) ## install node
         install_node
