@@ -14,6 +14,7 @@ install_basic_centos() {
     yum install -y zip unzip wget curl
     yum install -y sysstat iotop iftop
     yum install -y python python3 python-devel python3-devel
+    yum install -y make cmake cmake3
     yum autoremove -y
 }
 
@@ -24,6 +25,7 @@ install_basic_ubuntu() {
     apt install -y sysstat iotop iftop
     apt install -y python python3 python-dev python3-dev
     apt install -y ca-certificates gnupg lsb-release
+    apt install -y make cmake cmake3
     apt autoremove -y
 }
 
@@ -95,10 +97,7 @@ install_git() {
 
 # ========================= nvim ========================= #
 
-install_nvim() {
-    CONFIG_PATH=./nvim
-
-    # download and install
+install_nvim_centos() {
     if [ ! -f /usr/bin/nvim ]; then
         if [ ! -f nvim.appimage ]; then
             curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
@@ -113,22 +112,27 @@ install_nvim() {
         fi
         ln -s /squashfs-root/AppRun /usr/bin/nvim
     fi
+}
+
+install_nvim_ubuntu() {
+    apt install neovim python3-neovim
+}
+
+install_nvim() {
+    CONFIG_PATH=./nvim
+
+    # download and install
+    if [[ $OS -eq "centos" ]]; then
+        install_nvim_centos
+    elif [[ $OS -eq "ubuntu" ]]; then
+        install_nvim_ubuntu
+    fi
 
     # confignure
-    if [ ! -f ~/.config/nvim ]; then
+    if [ ! -d ~/.config/nvim ]; then
         mkdir -p ~/.config/nvim/
         cp ${CONFIG_PATH}/init.vim ~/.config/nvim/
         cp ${CONFIG_PATH}/coc-settings.json ~/.config/nvim/
-    fi
-
-    # python support
-    if [[ $OS -eq "centos" ]]; then
-        # yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-        # yum install -y python36-neovim
-        echo skip
-    elif [[ $OS -eq "ubuntu" ]]; then
-        # apt install python3-neovim
-        echo skip
     fi
 }
 
