@@ -34,7 +34,7 @@ export LibreOffice_PATH=/opt/libreoffice7.1/program
 export PATH=$PATH:$LibreOffice_PATH
 
 # term
-export TERM=xterm
+export TERM=xterm-256color
 export HISTSIZE=1000000
 
 # =============== Common specific aliases and functions =============== #
