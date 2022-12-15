@@ -70,6 +70,7 @@ install_node() {
 # ========================= git ========================= #
 
 install_git_centos() {
+    yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
     yum install -y git
     yum autoremove -y
 }
@@ -120,8 +121,15 @@ install_nvim() {
         cp ${CONFIG_PATH}/coc-settings.json ~/.config/nvim/
     fi
 
-    # python
-    pip3 install --user --upgrade pynvim
+    # python support
+    if [[ $OS -eq "centos" ]]; then
+        # yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        # yum install -y python36-neovim
+        echo skip
+    elif [[ $OS -eq "ubuntu" ]]; then
+        # apt install python3-neovim
+        echo skip
+    fi
 }
 
 # ========================= zsh ========================= #

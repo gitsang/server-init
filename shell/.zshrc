@@ -72,4 +72,3 @@ set-window-title() {
 }
 set-window-title
 add-zsh-hook precmd set-window-title
-. "/home/centos/.acme.sh/acme.sh.env"
