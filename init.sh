@@ -155,6 +155,12 @@ install_zsh() {
     if [ ! -d "~/.zsh/plugins/zsh-syntax-highlighting" ]; then
         git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/plugins/zsh-syntax-highlighting
     fi
+    if [ ! -f "~/.zsh/completion/_docker" ]; then
+        curl -fLo ~/.zsh/completion/_docker https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
+    fi
+    if [ ! -f "~/.zsh/completion/_docker-machine" ]; then
+        curl -fLo ~/.zsh/completion/_docker-machine https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine
+    fi
 
     # configure
     cp ${CONFIG_PATH}/.shrc ~
