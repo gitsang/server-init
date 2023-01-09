@@ -139,15 +139,17 @@ install_nvim() {
 # ========================= zsh ========================= #
 
 install_zsh() {
+    set -x
+
     CONFIG_PATH=./shell
 
     # install
     if [[ $OS == "centos" ]]; then
-        yum install -y zsh
-        yum autoremove -y
+        sudo yum install -y zsh
+        sudo yum autoremove -y
     elif [[ $OS == "ubuntu" ]]; then
-        apt install -y zsh
-        apt autoremove -y
+	sudo apt install -y zsh
+        sudo apt autoremove -y
     fi
     if [ ! -d "~/.zsh/plugins/zsh-autosuggestions" ]; then
         git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/plugins/zsh-autosuggestions
@@ -168,6 +170,8 @@ install_zsh() {
     cp ${CONFIG_PATH}/.bashrc ~
     cp ${CONFIG_PATH}/.bash_aliases ~
     chsh -s $(which zsh)
+
+    set +x
 }
 
 # ========================= fzf ========================= #
