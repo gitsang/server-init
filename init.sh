@@ -5,7 +5,7 @@
 # set -o pipefail
 # set -x
 
-OS=$(cat /etc/os-release  | grep '^ID=' | sed 's/^ID="\(.*\)"/\1/')
+OS=$(cat /etc/os-release  | grep '^ID=' | sed 's/^ID=//')
 
 # ========================= basic ========================= #
 
@@ -30,9 +30,9 @@ install_basic_ubuntu() {
 }
 
 install_basic() {
-    if [[ $OS -eq "centos" ]]; then
+    if [[ $OS == "centos" ]]; then
         install_basic_centos
-    elif [[ $OS -eq "ubuntu" ]]; then
+    elif [[ $OS == "ubuntu" ]]; then
         install_basic_ubuntu
     fi
 }
@@ -61,10 +61,10 @@ install_node_ubuntu() {
 }
 
 install_node() {
-    if [[ $OS -eq "centos" ]]; then
+    if [[ $OS == "centos" ]]; then
         install_node_centos
         install_yarn_centos
-    elif [[ $OS -eq "ubuntu" ]]; then
+    elif [[ $OS == "ubuntu" ]]; then
         install_node_ubuntu
     fi
 }
@@ -84,9 +84,9 @@ install_git_ubuntu() {
 
 install_git() {
     CONFIG_PATH=./git
-    if [[ $OS -eq "centos" ]]; then
+    if [[ $OS == "centos" ]]; then
         install_git_centos
-    elif [[ $OS -eq "ubuntu" ]]; then
+    elif [[ $OS == "ubuntu" ]]; then
         install_git_ubuntu
     fi
 
@@ -122,9 +122,9 @@ install_nvim() {
     CONFIG_PATH=./nvim
 
     # download and install
-    if [[ $OS -eq "centos" ]]; then
+    if [[ $OS == "centos" ]]; then
         install_nvim_centos
-    elif [[ $OS -eq "ubuntu" ]]; then
+    elif [[ $OS == "ubuntu" ]]; then
         install_nvim_ubuntu
     fi
 
@@ -142,10 +142,10 @@ install_zsh() {
     CONFIG_PATH=./shell
 
     # install
-    if [[ $OS -eq "centos" ]]; then
+    if [[ $OS == "centos" ]]; then
         yum install -y zsh
         yum autoremove -y
-    elif [[ $OS -eq "ubuntu" ]]; then
+    elif [[ $OS == "ubuntu" ]]; then
         apt install -y zsh
         apt autoremove -y
     fi
