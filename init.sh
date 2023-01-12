@@ -56,8 +56,8 @@ install_yarn_centos() {
 
 install_node_ubuntu() {
     curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-    apt -y install nodejs
-    apt -y autoremove
+    sudo apt -y install nodejs
+    sudo apt -y autoremove
 }
 
 install_node() {
@@ -148,7 +148,7 @@ install_zsh() {
         sudo yum install -y zsh
         sudo yum autoremove -y
     elif [[ $OS == "ubuntu" ]]; then
-	sudo apt install -y zsh
+        sudo apt install -y zsh
         sudo apt autoremove -y
     fi
     if [ ! -d "~/.zsh/plugins/zsh-autosuggestions" ]; then
