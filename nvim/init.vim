@@ -6,7 +6,7 @@
 let mapleader=" "
 set pastetoggle=<F12>
 set nocompatible
-set mouse-=a
+set mouse=nvi
 set backspace=indent,eol,start
 set encoding=utf-8 fileencodings=utf-8
 set updatetime=250
@@ -183,7 +183,7 @@ call plug#begin()
 
     "[leader function]"
 
-        Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
+        "Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
 
     "[git gutter]"
 
@@ -206,6 +206,8 @@ call plug#begin()
         Plug 'tpope/vim-commentary'
 
     "[markdown preview]"
+
+        Plug 'godlygeek/tabular'
 
         Plug 'plasticboy/vim-markdown', { 'for': ['markdown'] }
             let g:vim_markdown_folding_disabled = 1
@@ -241,7 +243,6 @@ call plug#begin()
             let g:mkdp_page_title = '「${name}」'
             let g:mkdp_filetypes = ['markdown']
 
-            nmap <leader>m <Plug>MarkdownPreviewToggle
             nmap <F8> <Plug>MarkdownPreviewToggle
 
     "[tagbar-markdown]"
@@ -566,6 +567,18 @@ function! Run(...)
     execute 'AsyncRun -mode=term -focus=1 -rows=10' join(a:000)
 endfunction
 
+" mouse toggle
+nmap <leader>m :call MouseToggle()<cr>
+:command MouseToggle call MouseToggle()
+function MouseToggle()
+    if &mouse == ""
+        let &mouse = "nvi"
+    else
+        let &mouse = ""
+    endif
+    echom "mouse_mode:" &mouse
+endfunction
+
 "--------------------
 " Golang
 "--------------------
@@ -703,7 +716,7 @@ endfunction
 "--------------------
 
 " underline to little camel
-:command -range ToLittleCamel <line1>,<line2>call ToLittleCamel()
+:command -range ToLittleCamel <line1>,<line2> call ToLittleCamel()
 function ToLittleCamel() range
     execute a:firstline ',' a:lastline 'substitute /_\(\w\)/\u\1/g'
 endfunction
@@ -714,6 +727,41 @@ function! RemoveTrailingSpaces()
     %s/[ \t]*$//
     nohlsearch
     execute "normal \<C-o>"
+endfunction
+
+" escape
+:command -range Escape <line1>,<line2> call Escape()
+function! Escape() range
+    silent! execute a:firstline ',' a:lastline 'substitute /\\"/"/g'
+    silent! execute a:firstline ',' a:lastline 'substitute /\\n/\r/g'
+    silent! execute a:firstline ',' a:lastline 'substitute /\\t/\t/g'
+endfunction
+
+" base64 encode
+command! -nargs=0 -range -bar Base64Encode <line1>,<line2>call Base64Encode()
+function! Base64Encode() range
+    " go to first line, last line, delete into @b, insert text
+    " note the substitute() call to join the b64 into one line
+    " this lets `:Base64Encode | Base64Decode` work without modifying the text
+    " at all, regardless of line length -- although that particular command is
+    " useless, lossless editing is a plus
+    exe "normal! " . a:firstline . "GV" . a:lastline . "G"
+    \ . "\"bdO0\<C-d>\<C-r>\<C-o>"
+    \ . "=substitute(system('base64', @b), "
+    \ . "'\\n', '', 'g')\<CR>\<ESC>"
+endfunction
+
+" base64 decode
+command! -nargs=0 -range -bar Base64Decode <line1>,<line2>call Base64Decode()
+function! Base64Decode() range
+    let l:join = "\"bc"
+    if a:firstline != a:lastline
+        " gJ exits vis mode so we need a cc to change two lines
+        let l:join = "gJ" . l:join . "c"
+    endif
+    exe "normal! " . a:firstline . "GV" . a:lastline . "G" . l:join
+    \ . "0\<C-d>\<C-r>\<C-o>"
+    \ . "=system('base64 --decode', @b)\<CR>\<BS>\<ESC>"
 endfunction
 
 " fix tab
@@ -773,7 +821,7 @@ hi ColorColumn cterm=NONE ctermbg=235
 set cursorcolumn
 set cursorline
 hi CursorLine   cterm=NONE ctermbg=237
-hi CursorColumn cterm=NONE ctermbg=233
+hi CursorColumn cterm=NONE ctermbg=234
 
 " Diff
 hi DiffAdd    cterm=reverse ctermfg=108 ctermbg=235 gui=reverse guifg=#b8bb26 guibg=#282828
