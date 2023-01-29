@@ -342,7 +342,8 @@ call plug#begin()
                 \ "coc-clangd",
                 \ "coc-prettier",
                 \ "coc-highlight",
-                \ "coc-vimlsp"
+                \ "coc-vimlsp",
+                \ "coc-vetur"
                 \ ]
 
             " Use tab for trigger completion with characters ahead and navigate.
