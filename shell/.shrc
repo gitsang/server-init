@@ -8,6 +8,7 @@ export DISPLAY=${REMOTE_IP}:0.0
 
 # path
 export PATH=$PATH:.
+export PATH=$PATH:~/.local/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib:./libs:.
 
 # java
@@ -162,13 +163,13 @@ kj() {
 # tmpfile
 
 tmp() {
-    TMPROOT=/root/.tmp/
+    TMPROOT=~/.tmp
     DATE=$(date +%s)
     OPT=$1
     case ${OPT} in
         dir)
             TMPDIR=${TMPROOT}/${DATE}
-            mkdir ${TMPDIR}
+            mkdir -p ${TMPDIR}
             echo -n "Change Dir? (Default:Y) [Y/n]"
             read input
             case $input in
@@ -199,6 +200,7 @@ alias gcm='git commit -m'
 alias gps='git push'
 alias gpl='git pull'
 alias gf='git fetch'
+alias gt='git for-each-ref --sort=creatordate --format "%(creatordate): %(refname)" refs/tags'
 gpsu() {
     BRANCH=$(git branch | grep "*" | awk '{print $2}')
     git push -u origin ${BRANCH}
@@ -361,7 +363,7 @@ list_proxy() {
     echo ftp_proxy=$ftp_proxy
 }
 proxy() {
-    PROXY_HOST=127.0.0.1
+    PROXY_HOST=localhost
     case "$1" in
         "--show")
             echo ${proxy}
