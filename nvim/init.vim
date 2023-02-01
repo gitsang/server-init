@@ -512,6 +512,7 @@ call plug#begin()
                 \ }
 
     "[golang]"
+
         " Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
         "     let g:go_code_completion_enabled = 0
 
@@ -703,13 +704,40 @@ endfunction
 " date
 :command PrintDate call PrintDate()
 function! PrintDate()
-    r!date --iso-8601=seconds
+    let l:date = system('date --iso-8601=seconds')
+    let l:date = substitute(l:date, '\n$', '', '')
+    execute 'normal a' . l:date
 endfunction
 
 " uuid
 :command PrintUuid call PrintUuid()
 function! PrintUuid()
-    r!uuidgen
+    let l:uuid = system('uuidgen')
+    let l:uuid = substitute(l:uuid, '\n$', '', '')
+    execute 'normal a' . l:uuid
+endfunction
+
+" rand
+:command -nargs=* PrintRand call PrintRand(<f-args>)
+function! PrintRand(...)
+    let l:count = 12
+    if a:0
+        let l:count = a:1
+    endif
+    let l:cmd = 'tr -dc A-Za-z0-9 </dev/urandom | head -c ' . l:count
+    let l:rand = system(l:cmd)
+    execute 'normal a' . l:rand
+endfunction
+
+:command -nargs=* PrintRandHex call PrintRandHex(<f-args>)
+function! PrintRandHex(...)
+    let l:count = 12
+    if a:0
+        let l:count = a:1
+    endif
+    let l:cmd = 'tr -dc 0-9a-f </dev/urandom | head -c ' . l:count
+    let l:rand = system(l:cmd)
+    execute 'normal a' . l:rand
 endfunction
 
 "--------------------
