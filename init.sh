@@ -5,92 +5,76 @@
 # set -o pipefail
 # set -x
 
-OS=$(cat /etc/os-release  | grep '^ID=' | sed 's/^ID=//')
+OS=$(cat /etc/os-release | grep '^ID=' | sed 's/^ID=//')
 
 # ========================= basic ========================= #
 
-install_basic_centos() {
-    yum update -y
-    yum install -y zip unzip wget curl
-    yum install -y sysstat iotop iftop
-    yum install -y python python3 python-devel python3-devel
-    yum install -y make cmake cmake3
-    yum autoremove -y
-}
-
-install_basic_ubuntu() {
-    apt update
-    apt upgrade -y
-    apt install -y zip unzip wget curl
-    apt install -y sysstat iotop iftop
-    apt install -y python python3 python-dev python3-dev
-    apt install -y ca-certificates gnupg lsb-release
-    apt install -y make cmake cmake3
-    apt autoremove -y
-}
-
 install_basic() {
     if [[ $OS == "centos" ]]; then
-        install_basic_centos
-    elif [[ $OS == "ubuntu" ]]; then
-        install_basic_ubuntu
+        sudo yum update -y
+        sudo yum install -y \
+            zip unzip wget curl \
+            sysstat iotop iftop \
+            make cmake cmake3
+        sudo yum install -y python python3 python-devel python3-devel
+        sudo yum autoremove -y
+    elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
+        sudo apt update
+        sudo apt upgrade -y
+        sudo apt install -y ca-certificates gnupg lsb-release
+        sudo apt install -y \
+            zip unzip wget curl \
+            sysstat iotop iftop \
+            make cmake cmake3
+        sudo apt install -y python python3 python-dev python3-dev
+        sudo apt autoremove -y
     fi
 }
 
 # ========================= node ========================= #
 
-install_node_centos() {
-    #curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
-    sudo yum install -y nodejs npm
-    sudo yum install -y gcc-c++ make
-    sudo yum autoremove -y
-    node --version
-    npm --version
-}
-
-install_yarn_centos() {
-    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
-    sudo yum install -y yarn
-    yarn --version
-}
-
-install_node_ubuntu() {
-    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-    sudo apt -y install nodejs
-    sudo apt -y autoremove
-}
-
 install_node() {
     if [[ $OS == "centos" ]]; then
-        install_node_centos
-        install_yarn_centos
+        # node
+        curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
+        sudo yum install -y nodejs npm
+        sudo yum install -y gcc-c++ make
+        sudo yum autoremove -y
+        # yarn
+        curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+        sudo yum update
+        sudo yum install -y yarn
     elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
-        install_node_ubuntu
+        # node
+        curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+        sudo apt install -y nodejs
+        sudo apt install -y gcc g++ make
+        sudo apt autoremove -y
+        # yarn
+        curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+        echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+        sudo apt update
+        sudo apt -y install yarn
     fi
+    node --version
+    npm --version
+    yarn --version
 }
 
 # ========================= git ========================= #
 
-install_git_centos() {
-    yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
-    yum install -y git
-    yum autoremove -y
-}
-
-install_git_ubuntu() {
-    apt install -y git
-    apt autoremove -y
-}
-
 install_git() {
-    CONFIG_PATH=./git
     if [[ $OS == "centos" ]]; then
-        install_git_centos
+        sudo yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
+        sudo yum install -y git
+        sudo yum autoremove -y
     elif [[ $OS == "ubuntu" ]]; then
-        install_git_ubuntu
+        sudo apt install -y git
+        sudo apt autoremove -y
     fi
 
     # configure
+    CONFIG_PATH=./git
     cp ${CONFIG_PATH}/.gitconfig ~
     npm install -g git-split-diffs
 }
@@ -119,8 +103,6 @@ install_nvim_ubuntu() {
 }
 
 install_nvim() {
-    CONFIG_PATH=./nvim
-
     # download and install
     if [[ $OS == "centos" ]]; then
         install_nvim_centos
@@ -129,6 +111,7 @@ install_nvim() {
     fi
 
     # confignure
+    CONFIG_PATH=./nvim
     if [ ! -d ~/.config/nvim ]; then
         mkdir -p ~/.config/nvim/
         cp ${CONFIG_PATH}/init.vim ~/.config/nvim/
@@ -139,39 +122,47 @@ install_nvim() {
 # ========================= zsh ========================= #
 
 install_zsh() {
-    set -x
-
-    CONFIG_PATH=./shell
-
     # install
     if [[ $OS == "centos" ]]; then
         sudo yum install -y zsh
         sudo yum autoremove -y
-    elif [[ $OS == "ubuntu" ]]; then
+    elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
         sudo apt install -y zsh
         sudo apt autoremove -y
     fi
-    if [ ! -d "~/.zsh/plugins/zsh-autosuggestions" ]; then
-        git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/plugins/zsh-autosuggestions
+
+    # plugin
+    if [ ! -d ~/.zsh/plugins/zsh-autosuggestions ]; then
+        git clone https://github.com/zsh-users/zsh-autosuggestions \
+            ~/.zsh/plugins/zsh-autosuggestions
     fi
-    if [ ! -d "~/.zsh/plugins/zsh-syntax-highlighting" ]; then
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/plugins/zsh-syntax-highlighting
+    if [ ! -d ~/.zsh/plugins/zsh-syntax-highlighting ]; then
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
+            ~/.zsh/plugins/zsh-syntax-highlighting
     fi
-    if [ ! -f "~/.zsh/completion/_docker" ]; then
-        curl -fLo ~/.zsh/completion/_docker https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
+
+    # completion
+    mkdir -p ~/.zsh/completion
+    if [ ! -f ~/.zsh/completion/_docker ]; then
+        curl -fLo ~/.zsh/completion/_docker \
+            https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
     fi
-    if [ ! -f "~/.zsh/completion/_docker-machine" ]; then
-        curl -fLo ~/.zsh/completion/_docker-machine https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine
+    if [ ! -f ~/.zsh/completion/_docker-machine ]; then
+        curl -fLo ~/.zsh/completion/_docker-machine \
+            https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine
+    fi
+    if [ ! -f ~/.zsh/completion/_docker-compose ]; then
+        curl -fLo ~/.zsh/completion/_docker-compose
+            https://raw.githubusercontent.com/docker/compose/v2.5.0/contrib/completion/zsh/_docker-compose
     fi
 
     # configure
+    CONFIG_PATH=./shell
     cp ${CONFIG_PATH}/.shrc ~
     cp ${CONFIG_PATH}/.zshrc ~
     cp ${CONFIG_PATH}/.bashrc ~
     cp ${CONFIG_PATH}/.bash_aliases ~
     chsh -s $(which zsh)
-
-    set +x
 }
 
 # ========================= fzf ========================= #
@@ -184,15 +175,8 @@ install_fzf() {
 # ========================= docker ========================= #
 
 install_docker() {
-    # install
     curl -fsSL https://get.docker.com -o get-docker.sh
-    sh get-docker.sh
-
-    # configure
-    mkdir -p ~/.zsh/completion
-    curl \
-        -L https://raw.githubusercontent.com/docker/compose/v2.5.0/contrib/completion/zsh/_docker-compose \
-        -o ~/.zsh/completion/_docker-compose
+    sh -x get-docker.sh
 }
 
 # ========================= help ========================= #
