@@ -64,7 +64,7 @@ install_node() {
     if [[ $OS == "centos" ]]; then
         install_node_centos
         install_yarn_centos
-    elif [[ $OS == "ubuntu" ]]; then
+    elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
         install_node_ubuntu
     fi
 }
