@@ -34,36 +34,19 @@ install_basic() {
 # ========================= node ========================= #
 
 install_node() {
-    # 1. install from package
+    # 1. install node from package
     if [[ $OS == "centos" ]]; then
         # node
         curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
         sudo yum install -y nodejs npm
-        sudo yum install -y gcc-c++ make
-        sudo yum autoremove -y
-        # yarn
-        curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
-        sudo yum update
-        sudo yum install -y yarn
     elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
         # node
         curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
         sudo apt install -y nodejs
-        sudo apt install -y gcc g++ make
-        sudo apt autoremove -y
-        # yarn
-        curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor \
-            | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
-        echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" \
-            | sudo tee /etc/apt/sources.list.d/yarn.list
-        sudo apt update
-        sudo apt -y install yarn
     fi
 
-    # 2. version check
-    node --version
-    npm --version
-    yarn --version
+    # 2. install yarn through npm
+    npm install --global yarn
 }
 
 # ========================= git ========================= #
