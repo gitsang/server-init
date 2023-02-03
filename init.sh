@@ -34,6 +34,7 @@ install_basic() {
 # ========================= node ========================= #
 
 install_node() {
+    # 1. install from package
     if [[ $OS == "centos" ]]; then
         # node
         curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
@@ -51,11 +52,15 @@ install_node() {
         sudo apt install -y gcc g++ make
         sudo apt autoremove -y
         # yarn
-        curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
-        echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+        curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor \
+            | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+        echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" \
+            | sudo tee /etc/apt/sources.list.d/yarn.list
         sudo apt update
         sudo apt -y install yarn
     fi
+
+    # 2. version check
     node --version
     npm --version
     yarn --version
@@ -64,53 +69,52 @@ install_node() {
 # ========================= git ========================= #
 
 install_git() {
+    # 1. install from package
     if [[ $OS == "centos" ]]; then
         sudo yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
         sudo yum install -y git
         sudo yum autoremove -y
-    elif [[ $OS == "ubuntu" ]]; then
+    elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
         sudo apt install -y git
         sudo apt autoremove -y
     fi
 
-    # configure
+    # 2. install plugin
+    npm install -g git-split-diffs
+
+    # 3. configure
     CONFIG_PATH=./git
     cp ${CONFIG_PATH}/.gitconfig ~
-    npm install -g git-split-diffs
 }
 
 # ========================= nvim ========================= #
 
-install_nvim_centos() {
-    if [ ! -f /usr/bin/nvim ]; then
-        if [ ! -f nvim.appimage ]; then
-            curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
-        fi
-        chmod u+x nvim.appimage
-        if [ ! -f /squashfs-root ]; then
-            if [ ! -f ./squashfs-root ]; then
-                ./nvim.appimage --appimage-extract
-            fi
-            ./squashfs-root/AppRun --version
-            mv squashfs-root /
-        fi
-        ln -s /squashfs-root/AppRun /usr/bin/nvim
-    fi
-}
-
-install_nvim_ubuntu() {
-    apt install neovim python3-neovim
-}
-
 install_nvim() {
-    # download and install
+    # 1. install prerequisites
     if [[ $OS == "centos" ]]; then
-        install_nvim_centos
-    elif [[ $OS == "ubuntu" ]]; then
-        install_nvim_ubuntu
+        sudo yum install -y \
+            ninja-build libtool \
+            autoconf automake cmake gcc gcc-c++ make \
+            pkgconfig unzip patch gettext curl
+    elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
+        sudo apt install -y \
+            ninja-build gettext libtool libtool-bin \
+            autoconf automake cmake g++ \
+            pkg-config unzip curl doxygen
     fi
 
-    # confignure
+    # 2. clone source
+    git clone https://github.com/neovim/neovim
+
+    # 3. build
+    cd neovim
+    git checkout stable
+    make CMAKE_BUILD_TYPE=RelWithDebInfo
+
+    # 4. install
+    sudo make install
+
+    # 5. confignure
     CONFIG_PATH=./nvim
     if [ ! -d ~/.config/nvim ]; then
         mkdir -p ~/.config/nvim/
@@ -122,7 +126,7 @@ install_nvim() {
 # ========================= zsh ========================= #
 
 install_zsh() {
-    # install
+    # 1. install from package
     if [[ $OS == "centos" ]]; then
         sudo yum install -y zsh
         sudo yum autoremove -y
@@ -131,7 +135,7 @@ install_zsh() {
         sudo apt autoremove -y
     fi
 
-    # plugin
+    # 2. install plugin
     if [ ! -d ~/.zsh/plugins/zsh-autosuggestions ]; then
         git clone https://github.com/zsh-users/zsh-autosuggestions \
             ~/.zsh/plugins/zsh-autosuggestions
@@ -141,7 +145,7 @@ install_zsh() {
             ~/.zsh/plugins/zsh-syntax-highlighting
     fi
 
-    # completion
+    # 3. install completion
     mkdir -p ~/.zsh/completion
     if [ ! -f ~/.zsh/completion/_docker ]; then
         curl -fLo ~/.zsh/completion/_docker \
@@ -156,7 +160,7 @@ install_zsh() {
             https://raw.githubusercontent.com/docker/compose/v2.5.0/contrib/completion/zsh/_docker-compose
     fi
 
-    # configure
+    # 4. configure
     CONFIG_PATH=./shell
     cp ${CONFIG_PATH}/.shrc ~
     cp ${CONFIG_PATH}/.zshrc ~

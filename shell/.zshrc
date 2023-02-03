@@ -78,5 +78,3 @@ set-window-title
 add-zsh-hook precmd set-window-title
 
 # =============== Extra =============== #
-
-. "/root/.acme.sh/acme.sh.env"
