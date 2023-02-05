@@ -87,17 +87,20 @@ install_nvim() {
     fi
 
     # 2. clone source
-    git clone https://github.com/neovim/neovim
+    git clone https://github.com/neovim/neovim /usr/local/src/neovim
+    cd /usr/local/src/neovim
 
     # 3. build
-    cd neovim
     git checkout stable
     make CMAKE_BUILD_TYPE=RelWithDebInfo
 
     # 4. install
     sudo make install
 
-    # 5. confignure
+    # 5. change dir back
+    cd -
+
+    # 6. confignure
     CONFIG_PATH=./nvim
     if [ ! -d ~/.config/nvim ]; then
         mkdir -p ~/.config/nvim/
