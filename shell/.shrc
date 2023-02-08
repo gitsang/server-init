@@ -132,7 +132,7 @@ fixmod() {
 
 # docker
 alias rekcod="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock nexdrew/rekcod"
-alias dps='docker ps --format --no-trunc "{{.Names}}:\n\tid: {{.ID}}\n\timage: {{.Image}}\n\tcommand: {{.Command}}\n\tnetwork: {{.Networks}}\n\tmount: {{.Mounts}}\n\tports: {{.Ports}}\n\tstatus: {{.Status}}\n\tcreated: {{.RunningFor}}\n\tstatus: {{.State}}\n\tsize: {{.Size}}\n"'
+alias dps='docker ps --format "table {{.Image}}\t{{.Networks}}\t{{.Status}}\t{{.RunningFor}}\t{{.State}}\t{{.Names}}"'
 alias dpsj='curl -XGET --unix-socket /var/run/docker.sock http://localhost/containers/json | jq'
 alias rcli='docker run -it --rm redis redis-cli'
 alias redis-cli='docker run -it --rm redis redis-cli'
