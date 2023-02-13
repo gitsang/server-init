@@ -379,18 +379,18 @@ proxy() {
             ;;
         "-s"|"--set")
             case "$2" in
-                "ts")
-                    export proxy=ts
-                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1080";;
                 "us")
                     export proxy=us
                     export {http,https,ftp}_proxy="http://${PROXY_HOST}:1081";;
+                "ru")
+                    export proxy=us
+                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1082";;
                 "cn")
                     export proxy=cn
-                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1082";;
+                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1083";;
                 "ho")
                     export proxy=ho
-                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1083";;
+                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1084";;
                 *)
                     ;;
             esac
@@ -403,8 +403,9 @@ proxy() {
             echo "    -c, --clean          clean proxy"
             echo "    -s, --set [location] set proxy"
             echo "              us         (1081)"
-            echo "              cn         (1082)"
-            echo "              ho         (1083)"
+            echo "              ru         (1082)"
+            echo "              cn         (1083)"
+            echo "              ho         (1084)"
             list_proxy
             ;;
     esac
