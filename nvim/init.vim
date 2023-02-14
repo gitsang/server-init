@@ -6,7 +6,8 @@
 let mapleader=" "
 set pastetoggle=<F12>
 set nocompatible
-set mouse=nvi
+" set mouse=nvi
+set mouse=
 set backspace=indent,eol,start
 set encoding=utf-8 fileencodings=utf-8
 set updatetime=250
@@ -533,6 +534,10 @@ call plug#begin()
             "   autocmd!
             "   autocmd BufWritePre * undojoin | Neoformat
             " augroup END
+
+    "[jinja]"
+
+        Plug 'Glench/Vim-Jinja2-Syntax'
 
 call plug#end()
 
