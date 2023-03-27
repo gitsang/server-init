@@ -201,6 +201,11 @@ alias gps='git push'
 alias gpl='git pull'
 alias gf='git fetch'
 alias gt='git for-each-ref --sort=creatordate --format "%(creatordate): %(refname)" refs/tags'
+gtps() {
+    TAG=${1}
+    git tag ${TAG}
+    git push origin ${TAG}
+}
 gpsu() {
     BRANCH=$(git branch | grep "*" | awk '{print $2}')
     git push -u origin ${BRANCH}

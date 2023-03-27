@@ -13,6 +13,7 @@
     quotepath = false
 [push]
     default = simple
+    autoSetupRemote = true
 [gui]
     encoding = utf-8
 [i18n]
