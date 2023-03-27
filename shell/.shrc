@@ -7,8 +7,7 @@ export REMOTE_IP=`who am i | sed 's/.*(\(.*\)).*/\1/g'`
 export DISPLAY=${REMOTE_IP}:0.0
 
 # path
-export PATH=$PATH:.
-export PATH=$PATH:~/.local/bin
+export PATH=$PATH:~/.local/bin:/usr/local/bin:.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib:./libs:.
 
 # java
@@ -18,18 +17,16 @@ export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib:/usr/local/lib
 export PATH=$PATH:${JAVA_HOME}/bin
 
 # golang
-#export GOROOT=/usr/local/go
-export GOPATH=/go
+export GOROOT=/usr/local/go
+export GOPATH=~/.go
 export GOBIN=$GOPATH/bin
 export GOPROXY=https://goproxy.cn
 export GO111MODULE=on
-#export PATH=$PATH:$GOROOT/bin:$GOBIN
-export PATH=$PATH:$GOBIN
+export PATH=$PATH:$GOBIN:$GOROOT/bin
 export GONOPROXY='*.sang.ink,*.yealink.com'
 export GONOSUMDB='*.sang.ink,*.yealink.com'
 export GOPRIVATE='gitlab.home.sang.ink,gitcode.yealink.com'
 #export GOCACHE=off
-
 # libreoffice
 export LibreOffice_PATH=/opt/libreoffice7.1/program
 export PATH=$PATH:$LibreOffice_PATH
@@ -183,6 +180,13 @@ tmp() {
             nvim ${TMPFILE}
             ;;
     esac
+}
+
+# make
+mk() {
+    OPTION=${1}
+    RELATE_PATH=$(realpath $(git rev-parse --show-toplevel) --relative-to=.)
+    make ${OPTION} -C ${RELATE_PATH}
 }
 
 # git
