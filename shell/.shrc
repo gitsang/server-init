@@ -27,6 +27,7 @@ export GONOPROXY='*.sang.ink,*.yealink.com'
 export GONOSUMDB='*.sang.ink,*.yealink.com'
 export GOPRIVATE='gitlab.home.sang.ink,gitcode.yealink.com'
 #export GOCACHE=off
+
 # libreoffice
 export LibreOffice_PATH=/opt/libreoffice7.1/program
 export PATH=$PATH:$LibreOffice_PATH
