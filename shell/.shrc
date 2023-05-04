@@ -45,7 +45,7 @@ fuck() {
     elif [ $# -gt 0 ]; then
         sudo $@
     else
-        sudo !!
+        sudo $(fc -ln -1)
     fi
 }
 
