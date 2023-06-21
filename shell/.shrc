@@ -11,10 +11,12 @@ export PATH=$PATH:~/.local/bin:/usr/local/bin:.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib:./libs:.
 
 # java
-export JAVA_HOME=/usr/local/java/jdk-18.0.2.1
+export JAVA_HOME=/usr/lib/jvm/jre-openjdk
 export JRE_HOME=${JAVA_HOME}/jre
 export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib:/usr/local/lib
-export PATH=$PATH:${JAVA_HOME}/bin
+export M2_HOME=/usr/share/maven
+export MAVEN_HOME=/usr/share/maven
+export PATH=$PATH:${JAVA_HOME}/bin:${M2_HOME}/bin
 
 # golang
 export GOROOT=/usr/local/go
@@ -185,9 +187,8 @@ tmp() {
 
 # make
 mk() {
-    OPTION=${1}
     RELATE_PATH=$(realpath $(git rev-parse --show-toplevel) --relative-to=.)
-    make ${OPTION} -C ${RELATE_PATH}
+    make ${@} -C ${RELATE_PATH}
 }
 
 # git

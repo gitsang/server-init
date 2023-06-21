@@ -98,6 +98,8 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
+let hostname = substitute(system('hostname'), '\n', '', '')
+
 call plug#begin()
 
     "--------------------
@@ -221,7 +223,7 @@ call plug#begin()
             let g:mkdp_refresh_slow = 0
             let g:mkdp_command_for_global = 0
             let g:mkdp_open_to_the_world = 1
-            let g:mkdp_open_ip = ''
+            let g:mkdp_open_ip = hostname
             let g:mkdp_port = '7777'
             let g:mkdp_browser = 'echo'
             let g:mkdp_echo_preview_url = 1

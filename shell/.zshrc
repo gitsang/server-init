@@ -55,15 +55,21 @@ NEWLINE=$'\n'
 PROMPT_HOSTNAME='%{$fg[green]%}%n%{$reset_color%}@%m'
 PROMPT_PROXY='%B%{$fg[red]%}❰$(proxy --show)❱%{$reset_color%}%b'
 PROMPT_DATE='$(date)'
-PROMPT_GITBRANCH='%{$fg[blue]%}$(git branch --show-current 2&> /dev/null | xargs -I branch echo "(branch)")%{$reset_color%}'
 PROMPT_WORKDIR='%{$fg[yellow]%}%~%{$reset_color%}'
+PROMPT_GITBRANCH='%{$fg[blue]%}$(git branch --show-current 2&> /dev/null | xargs -I branch echo "(branch)")%{$reset_color%}'
 PROMPT_CMDLINE='${NEWLINE} %# '
 PROMPT="${NEWLINE}${PROMPT_HOSTNAME} ${PROMPT_PROXY} ${PROMPT_DATE} ${PROMPT_WORKDIR} ${PROMPT_GITBRANCH} ${PROMPT_CMDLINE}"
-RPROMPT='[%{$fg_bold[yellow]%}%?%{$reset_color%}]'
+
+PROMPT_ENV='%B%{$fg[red]%} [ANSIBLE_DEPLOY_ENV: ${ANSIBLE_DEPLOY_ENV}] %{$reset_color%}%b'
+PROMPT_RET='[%{$fg_bold[yellow]%}%?%{$reset_color%}]'
+RPROMPT="${PROMPT_ENV} ${PROMPT_RET}"
 
 #DISABLE_AUTO_TITLE="true"
 set-window-title() {
-    title="$(hostname -s):$(sed 's:\([^/]\)[^/]*/:\1/:g' <<< $PWD)"
+    #pwd_short=$(sed 's:\([^/]\)[^/]*/:\1/:g' <<< $PWD)
+    #title="$(hostname -s):${pwd_short}"
+    pwd_base=$(basename $PWD)
+    title="${USER}@$(hostname -s) : ${pwd_base}"
 
     git rev-parse --show-toplevel > /dev/null 2>&1
     if [ $? -eq 0 ]; then
