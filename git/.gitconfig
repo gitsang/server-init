@@ -47,6 +47,6 @@
     insteadOf = https://gitcode.yealink.com/
 [url "git@gitlab.com:"]
     insteadOf = https://gitlab.com/
-[http "https://gitlab.home.sang.ink"]
-    proxy = http://127.0.0.1:1083
+[http "https://gitlab.home.c8g.top"]
+    proxy = http://127.0.0.1:1084
     sslVerify = true
