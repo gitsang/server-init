@@ -52,7 +52,7 @@ autoload -U colors && colors
 # prompt
 setopt prompt_subst
 NEWLINE=$'\n'
-PROMPT_HOSTNAME='%{$fg[green]%}%n%{$reset_color%}@%m'
+PROMPT_HOSTNAME='%{$fg[green]%}%n%{$reset_color%}@%M'
 PROMPT_PROXY='%B%{$fg[red]%}❰$(proxy --show)❱%{$reset_color%}%b'
 PROMPT_DATE='$(date)'
 PROMPT_WORKDIR='%{$fg[yellow]%}%~%{$reset_color%}'

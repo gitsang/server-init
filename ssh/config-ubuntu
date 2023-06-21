@@ -7,7 +7,7 @@ Host gitlab.home.sang.ink
     Hostname gitlab.home.sang.ink
     Preferredauthentications publickey
     IdentityFile ~/.ssh/id_rsa
-    ProxyCommand /usr/bin/nc -x 127.0.0.1:1083 -X connect %h %p
+    ProxyCommand /usr/bin/nc -x 127.0.0.1:1084 -X connect %h %p
 
 Host github.com
     Hostname github.com
