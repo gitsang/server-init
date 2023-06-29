@@ -385,23 +385,23 @@ proxy() {
             ;;
         "-c"|"--clean")
             export proxy=
-            export {http,https,ftp}_proxy=""
+            export {HTTP,HTTPS,FTP}_PROXY=""
             list_proxy
             ;;
         "-s"|"--set")
             case "$2" in
                 "us")
                     export proxy=us
-                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1081";;
+                    export {HTTP,HTTPS,FTP}_PROXY="http://${PROXY_HOST}:1081";;
                 "ru")
                     export proxy=us
-                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1082";;
+                    export {HTTP,HTTPS,FTP}_PROXY="http://${PROXY_HOST}:1082";;
                 "cn")
                     export proxy=cn
-                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1083";;
+                    export {HTTP,HTTPS,FTP}_PROXY="http://${PROXY_HOST}:1083";;
                 "ho")
                     export proxy=ho
-                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1084";;
+                    export {HTTP,HTTPS,FTP}_PROXY="http://${PROXY_HOST}:1084";;
                 *)
                     ;;
             esac
