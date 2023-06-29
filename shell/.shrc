@@ -369,9 +369,7 @@ trash() {
 # proxy
 alias px='proxy'
 list_proxy() {
-    echo http_proxy=$http_proxy
-    echo https_proxy=$https_proxy
-    echo ftp_proxy=$ftp_proxy
+    echo $http_proxy
 }
 proxy() {
     PROXY_HOST=localhost
@@ -386,25 +384,31 @@ proxy() {
         "-c"|"--clean")
             export proxy=
             export {HTTP,HTTPS,FTP}_PROXY=""
+            export {http,https,ftp}_proxy=""
             list_proxy
             ;;
         "-s"|"--set")
             case "$2" in
                 "us")
                     export proxy=us
-                    export {HTTP,HTTPS,FTP}_PROXY="http://${PROXY_HOST}:1081";;
+                    export http_proxy="http://${PROXY_HOST}:1081";;
                 "ru")
                     export proxy=us
-                    export {HTTP,HTTPS,FTP}_PROXY="http://${PROXY_HOST}:1082";;
+                    export http_proxy="http://${PROXY_HOST}:1082";;
                 "cn")
                     export proxy=cn
-                    export {HTTP,HTTPS,FTP}_PROXY="http://${PROXY_HOST}:1083";;
+                    export http_proxy="http://${PROXY_HOST}:1083";;
                 "ho")
                     export proxy=ho
-                    export {HTTP,HTTPS,FTP}_PROXY="http://${PROXY_HOST}:1084";;
+                    export http_proxy="http://${PROXY_HOST}:1084";;
                 *)
                     ;;
             esac
+            export https_proxy=$http_proxy
+            export ftp_proxy=$http_proxy
+            export HTTP_PROXY=$http_proxy
+            export HTTPS_PROXY=$http_proxy
+            export FTP_PROXY=$http_proxy
             list_proxy
             ;;
         *)

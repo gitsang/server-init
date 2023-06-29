@@ -28,6 +28,16 @@ install_basic() {
             make cmake cmake3
         sudo apt install -y python python3 python-dev python3-dev
         sudo apt autoremove -y
+    elif [[ $OS == "kali" ]]; then
+        sudo apt update
+        sudo apt upgrade -y
+        sudo apt install -y ca-certificates gnupg lsb-release
+        sudo apt install -y \
+            zip unzip wget curl \
+            sysstat iotop iftop \
+            make cmake
+        sudo apt install -y python2-minimal python2 python-is-python3 2to3
+        sudo apt autoremove -y
     fi
 }
 
@@ -36,17 +46,15 @@ install_basic() {
 install_node() {
     # 1. install node from package
     if [[ $OS == "centos" ]]; then
-        # node
         curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
         sudo yum install -y nodejs npm
-    elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
-        # node
+    elif [[ $OS == "ubuntu" || $OS == "debian" || $OS=="kali" ]]; then
         curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
         sudo apt install -y nodejs
     fi
 
     # 2. install yarn through npm
-    npm install --global yarn
+    sudo npm install --global yarn
 }
 
 # ========================= git ========================= #
@@ -57,13 +65,13 @@ install_git() {
         sudo yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
         sudo yum install -y git
         sudo yum autoremove -y
-    elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
+    elif [[ $OS == "ubuntu" || $OS == "debian" || $OS == "kali" ]]; then
         sudo apt install -y git
         sudo apt autoremove -y
     fi
 
     # 2. install plugin
-    npm install -g git-split-diffs
+    sudo npm install -g git-split-diffs
 
     # 3. configure
     CONFIG_PATH=./git
@@ -79,7 +87,7 @@ install_nvim() {
             ninja-build libtool \
             autoconf automake cmake gcc gcc-c++ make \
             pkgconfig unzip patch gettext curl
-    elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
+    elif [[ $OS == "ubuntu" || $OS == "debian" || $OS == "kali" ]]; then
         sudo apt install -y \
             ninja-build gettext libtool libtool-bin \
             autoconf automake cmake g++ \
@@ -87,12 +95,12 @@ install_nvim() {
     fi
 
     # 2. clone source
-    git clone https://github.com/neovim/neovim /usr/local/src/neovim
-    cd /usr/local/src/neovim
+    mkdir -p ~/.local/src
+    git clone https://github.com/neovim/neovim ~/.local/src/neovim --depth=1
+    cd ~/.local/src/neovim
 
     # 3. build
-    git checkout stable
-    make CMAKE_BUILD_TYPE=RelWithDebInfo
+    make CMAKE_BUILD_TYPE=Release
 
     # 4. install
     sudo make install
@@ -116,7 +124,7 @@ install_zsh() {
     if [[ $OS == "centos" ]]; then
         sudo yum install -y zsh
         sudo yum autoremove -y
-    elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
+    elif [[ $OS == "ubuntu" || $OS == "debian" || $OS == "kali" ]]; then
         sudo apt install -y zsh
         sudo apt autoremove -y
     fi
@@ -142,7 +150,7 @@ install_zsh() {
             https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine
     fi
     if [ ! -f ~/.zsh/completion/_docker-compose ]; then
-        curl -fLo ~/.zsh/completion/_docker-compose
+        curl -fLo ~/.zsh/completion/_docker-compose \
             https://raw.githubusercontent.com/docker/compose/v2.5.0/contrib/completion/zsh/_docker-compose
     fi
 
