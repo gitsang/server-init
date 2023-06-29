@@ -52,15 +52,16 @@ autoload -U colors && colors
 # prompt
 setopt prompt_subst
 NEWLINE=$'\n'
-PROMPT_HOSTNAME='%{$fg[green]%}%n%{$reset_color%}@%M'
-PROMPT_PROXY='%B%{$fg[red]%}❰$(proxy --show)❱%{$reset_color%}%b'
-PROMPT_DATE='$(date)'
-PROMPT_WORKDIR='%{$fg[yellow]%}%~%{$reset_color%}'
-PROMPT_GITBRANCH='%{$fg[blue]%}$(git branch --show-current 2&> /dev/null | xargs -I branch echo "(branch)")%{$reset_color%}'
+PROMPT_HOSTNAME='%F{123}%n%F{220}@%M%f'
+PROMPT_DATE='%F{111}⏱️ $(date "+%Y-%m-%d %H:%M:%S %Z")%f'
+PROMPT_WORKDIR='%F{yellow}➤  %~ %f'
+PROMPT_GITBRANCH='%F{cyan}$(git branch --show-current 2&> /dev/null | xargs -I branch echo " branch")%f'
 PROMPT_CMDLINE='${NEWLINE} %# '
-PROMPT="${NEWLINE}${PROMPT_HOSTNAME} ${PROMPT_PROXY} ${PROMPT_DATE} ${PROMPT_WORKDIR} ${PROMPT_GITBRANCH} ${PROMPT_CMDLINE}"
+PROMPT="%B${NEWLINE}${PROMPT_HOSTNAME} ${PROMPT_DATE} ${PROMPT_WORKDIR} ${PROMPT_GITBRANCH} ${PROMPT_CMDLINE}%b"
 
-PROMPT_ENV='%B%{$fg[red]%} [ANSIBLE_DEPLOY_ENV: ${ANSIBLE_DEPLOY_ENV}] %{$reset_color%}%b'
+PROMPT_ENV_ANSIBLE_DEPLOY_ENV='❰ANSIBLE_DEPLOY_ENV: ${ANSIBLE_DEPLOY_ENV}❱'
+PROMPT_ENV_HTTPS_PROXY='❰HTTPS_PROXY: ${HTTPS_PROXY}❱'
+PROMPT_ENV="%F{245} ${PROMPT_ENV_ANSIBLE_DEPLOY_ENV} ${PROMPT_ENV_ANSIBLE_DEPLOY_ENV} %f"
 PROMPT_RET='[%{$fg_bold[yellow]%}%?%{$reset_color%}]'
 RPROMPT="${PROMPT_ENV} ${PROMPT_RET}"
 

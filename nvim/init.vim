@@ -606,7 +606,7 @@ function! GoRun(...)
     if a:0
         execute 'AsyncRun -mode=term -focus=0 -rows=10 go run' a:1
     else
-        execute 'AsyncRun -mode=term -focus=0 -rows=10 go run main.go'
+        execute 'AsyncRun -mode=term -focus=0 -rows=10 go run .'
     endif
 endfunction
 
