@@ -35,6 +35,7 @@ export LibreOffice_PATH=/opt/libreoffice7.1/program
 export PATH=$PATH:$LibreOffice_PATH
 
 # term
+#export TERM=xterm
 export TERM=xterm-256color
 export HISTSIZE=1000000
 
@@ -366,6 +367,12 @@ trash() {
     esac
 }
 
+# upload
+upload() {
+    URL=https://transfer.cn.sang.ink
+    curl -T $1 ${URL}/$1
+}
+
 # proxy
 alias px='proxy'
 list_proxy() {
@@ -389,6 +396,9 @@ proxy() {
             ;;
         "-s"|"--set")
             case "$2" in
+                "vpn")
+                    export proxy=vpn
+                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1080";;
                 "us")
                     export proxy=us
                     export http_proxy="http://${PROXY_HOST}:1081";;
@@ -401,6 +411,9 @@ proxy() {
                 "ho")
                     export proxy=ho
                     export http_proxy="http://${PROXY_HOST}:1084";;
+                "co")
+                    export proxy=co
+                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1085";;
                 *)
                     ;;
             esac
@@ -417,10 +430,12 @@ proxy() {
             echo "    -l, --list           list current proxy"
             echo "    -c, --clean          clean proxy"
             echo "    -s, --set [location] set proxy"
+            echo "              vpn        (1080)"
             echo "              us         (1081)"
             echo "              ru         (1082)"
             echo "              cn         (1083)"
             echo "              ho         (1084)"
+            echo "              co         (1085)"
             list_proxy
             ;;
     esac

@@ -39,6 +39,8 @@ set nowrap
 set background=dark
 set number
 set showcmd
+set wildmenu
+set wildoptions=
 
 " Indent
 filetype on
@@ -246,6 +248,7 @@ call plug#begin()
             let g:mkdp_page_title = '「${name}」'
             let g:mkdp_filetypes = ['markdown']
 
+            nmap <leader>m <Plug>MarkdownPreviewToggle
             nmap <F8> <Plug>MarkdownPreviewToggle
 
     "[tagbar-markdown]"
@@ -265,6 +268,18 @@ call plug#begin()
             let g:vmt_include_headings_before = 1
             let g:vmt_list_indent_text = '  '
             " :GenToc
+
+    "[git gutter]"
+
+        Plug 'airblade/vim-gitgutter'
+            let g:gitgutter_max_signs = 500
+            " map key
+            let g:gitgutter_map_keys = 0
+            " colors
+            let g:gitgutter_override_sign_column_highlight = 0
+
+            nmap <leader>g <Plug>(GitGutterPreviewHunk)
+            nmap <leader><backspace> <Plug>(GitGutterUndoHunk)
 
     "--------------------
     " SideBar
@@ -537,6 +552,10 @@ call plug#begin()
             "   autocmd BufWritePre * undojoin | Neoformat
             " augroup END
 
+    "[commentary]"
+
+        Plug 'tpope/vim-commentary'
+
     "[jinja]"
 
         Plug 'Glench/Vim-Jinja2-Syntax'
@@ -614,12 +633,6 @@ endfunction
 function! GoNotImpl()
     execute "normal opanic(\"not implement\")"
 endfunction
-
-"snakecase: base_domain
-"camelcase: baseDomain
-"lispcase: base-domain
-"pascalcase: BaseDomain
-"titlecase: Base Domain
 
 :command -range -nargs=* GoTagsAdd <line1>,<line2>call GoTagsAdd(<f-args>)
 function! GoTagsAdd(...) range
@@ -750,6 +763,12 @@ endfunction
 "--------------------
 " Format
 "--------------------
+
+"snakecase: base_domain
+"camelcase: baseDomain
+"lispcase: base-domain
+"pascalcase: BaseDomain
+"titlecase: Base Domain
 
 " snake_case -> littleCamelCase
 :command -range SnakeCaseToLittleCamelCase <line1>,<line2> call SnakeCaseToLittleCamelCase()
