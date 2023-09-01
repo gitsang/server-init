@@ -10,9 +10,9 @@ OS=$(cat /etc/os-release | grep '^ID=' | sed 's/^ID="*\([a-z]*\)"*/\1/')
 # ========================= basic ========================= #
 
 install_prerequisite() {
+    mkdir -p ~/.local/src
     if [[ $OS == "centos" ]]; then
         sudo yum update -y
-        sudo yum install -y https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
         sudo yum install -y git
         sudo yum install -y zip unzip wget curl
         sudo yum install -y sysstat iotop iftop
@@ -25,7 +25,8 @@ install_prerequisite() {
         sudo yum install -y libuv libuv-devel
 	    sudo yum install -y libatomic
         sudo yum install -y zlib-devel
-        sudo yum install -y asciidoc xmlto
+        #sudo yum install -y asciidoc
+        sudo yum install -y xmlto
         sudo yum autoremove -y
     elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
         sudo apt update
@@ -83,13 +84,19 @@ install_node() {
 
 install_git_from_source() {
     # 1. install from source
-    wget https://github.com/git/git/archive/refs/tags/v2.40.1.tar.gz
-    tar -zxf v2.40.1.tar.gz
-    cd v2.40.1
-    make configure
-    ./configure --prefix=/usr
-    make all doc info
-    sudo make install install-doc install-html install-info
+    pushd ~/.local/src
+        if [[ ! -f "v2.40.1.tar.gz" ]]; then
+            wget https://github.com/git/git/archive/refs/tags/v2.40.1.tar.gz
+        fi
+        if [[ ! -d "git-2.40.1" ]]; then
+            tar -zxf v2.40.1.tar.gz
+        fi
+        cd git-2.40.1
+        make configure
+        ./configure --prefix=/usr
+        make all doc info
+        sudo make install install-doc install-html install-info
+    popd
 
     # 2. install plugin
     sudo npm install -g git-split-diffs
@@ -102,16 +109,15 @@ install_git_from_source() {
 # ========================= nvim ========================= #
 
 install_nvim_from_source() {
-    # 1. clone source
-    git clone https://github.com/neovim/neovim /usr/local/src/neovim
-
-    pushd /usr/local/src/neovim
-        # 2. build and install
-        make CMAKE_BUILD_TYPE=RelWithDebInfo
+    # install from source
+    pushd ~/.local/src
+        git clone https://github.com/neovim/neovim
+        cd neovim
+        make CMAKE_BUILD_TYPE=Release
         sudo make install
     popd
 
-    # 3. confignure
+    # confignure
     CONFIG_PATH=./nvim
     if [ ! -d ~/.config/nvim ]; then
         mkdir -p ~/.config/nvim/
