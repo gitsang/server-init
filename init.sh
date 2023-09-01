@@ -1,42 +1,63 @@
 #!/bin/bash
 
-# set -o errexit
+set -o errexit
+set -o pipefail
 # set -o nounset
-# set -o pipefail
 # set -x
 
-OS=$(cat /etc/os-release | grep '^ID=' | sed 's/^ID=//')
+OS=$(cat /etc/os-release | grep '^ID=' | sed 's/^ID="*\([a-z]*\)"*/\1/')
 
 # ========================= basic ========================= #
 
-install_basic() {
+install_prerequisite() {
     if [[ $OS == "centos" ]]; then
         sudo yum update -y
-        sudo yum install -y \
-            zip unzip wget curl \
-            sysstat iotop iftop \
-            make cmake cmake3
+        sudo yum install -y https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
+        sudo yum install -y git
+        sudo yum install -y zip unzip wget curl
+        sudo yum install -y sysstat iotop iftop
         sudo yum install -y python python3 python-devel python3-devel
+	    sudo yum groupinstall "Development Tools"
+        sudo yum install -y autoconf automake make cmake cmake3
+        sudo yum install -y pkgconfig patch gettext
+        sudo yum install -y gcc gcc-c++
+        sudo yum install -y ninja-build libtool
+        sudo yum install -y libuv libuv-devel
+	    sudo yum install -y libatomic
+        sudo yum install -y zlib-devel
+        sudo yum install -y asciidoc xmlto
         sudo yum autoremove -y
     elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
         sudo apt update
         sudo apt upgrade -y
         sudo apt install -y ca-certificates gnupg lsb-release
-        sudo apt install -y \
-            zip unzip wget curl \
-            sysstat iotop iftop \
-            make cmake cmake3
+        sudo apt install -y git
+        sudo apt install -y zip unzip wget curl
+        sudo apt install -y sysstat iotop iftop
         sudo apt install -y python python3 python-dev python3-dev
+        sudo apt install -y autoconf automake make cmake cmake3
+        sudo apt install -y ninja-build gettext libtool libtool-bin
+        sudo apt install -y g++
+        sudo apt install -y pkg-config doxygen
+        sudo apt install -y zlib1g-dev
+        sudo apt install -y asciidoc
+        sudo apt install -y xmlto
         sudo apt autoremove -y
     elif [[ $OS == "kali" ]]; then
         sudo apt update
         sudo apt upgrade -y
         sudo apt install -y ca-certificates gnupg lsb-release
-        sudo apt install -y \
-            zip unzip wget curl \
-            sysstat iotop iftop \
-            make cmake
+        sudo apt install -y git
+        sudo apt install -y zip unzip wget curl
+        sudo apt install -y sysstat iotop iftop
         sudo apt install -y python2-minimal python2 python-is-python3 2to3
+        sudo apt install -y autoconf automake make cmake cmake3
+        sudo apt install -y ninja-build gettext libtool libtool-bin
+        sudo apt install -y g++
+        sudo apt install -y pkg-config doxygen
+        sudo apt install -y zlib1g-dev
+        sudo apt install -y asciidoc
+        sudo apt install -y xmlto
         sudo apt autoremove -y
     fi
 }
@@ -48,7 +69,8 @@ install_node() {
     if [[ $OS == "centos" ]]; then
         curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
         sudo yum install -y nodejs npm
-    elif [[ $OS == "ubuntu" || $OS == "debian" || $OS=="kali" ]]; then
+    elif [[ $OS == "ubuntu" || $OS == "debian" || $OS == "kali" ]]; then
+        # node
         curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
         sudo apt install -y nodejs
     fi
@@ -59,16 +81,15 @@ install_node() {
 
 # ========================= git ========================= #
 
-install_git() {
-    # 1. install from package
-    if [[ $OS == "centos" ]]; then
-        sudo yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
-        sudo yum install -y git
-        sudo yum autoremove -y
-    elif [[ $OS == "ubuntu" || $OS == "debian" || $OS == "kali" ]]; then
-        sudo apt install -y git
-        sudo apt autoremove -y
-    fi
+install_git_from_source() {
+    # 1. install from source
+    wget https://github.com/git/git/archive/refs/tags/v2.40.1.tar.gz
+    tar -zxf v2.40.1.tar.gz
+    cd v2.40.1
+    make configure
+    ./configure --prefix=/usr
+    make all doc info
+    sudo make install install-doc install-html install-info
 
     # 2. install plugin
     sudo npm install -g git-split-diffs
@@ -80,35 +101,17 @@ install_git() {
 
 # ========================= nvim ========================= #
 
-install_nvim() {
-    # 1. install prerequisites
-    if [[ $OS == "centos" ]]; then
-        sudo yum install -y \
-            ninja-build libtool \
-            autoconf automake cmake gcc gcc-c++ make \
-            pkgconfig unzip patch gettext curl
-    elif [[ $OS == "ubuntu" || $OS == "debian" || $OS == "kali" ]]; then
-        sudo apt install -y \
-            ninja-build gettext libtool libtool-bin \
-            autoconf automake cmake g++ \
-            pkg-config unzip curl doxygen
-    fi
+install_nvim_from_source() {
+    # 1. clone source
+    git clone https://github.com/neovim/neovim /usr/local/src/neovim
 
-    # 2. clone source
-    mkdir -p ~/.local/src
-    git clone https://github.com/neovim/neovim ~/.local/src/neovim --depth=1
-    cd ~/.local/src/neovim
+    pushd /usr/local/src/neovim
+        # 2. build and install
+        make CMAKE_BUILD_TYPE=RelWithDebInfo
+        sudo make install
+    popd
 
-    # 3. build
-    make CMAKE_BUILD_TYPE=Release
-
-    # 4. install
-    sudo make install
-
-    # 5. change dir back
-    cd -
-
-    # 6. confignure
+    # 3. confignure
     CONFIG_PATH=./nvim
     if [ ! -d ~/.config/nvim ]; then
         mkdir -p ~/.config/nvim/
@@ -165,7 +168,7 @@ install_zsh() {
 
 # ========================= fzf ========================= #
 
-install_fzf() {
+install_fzf_from_source() {
     git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     ~/.fzf/install
 }
@@ -199,23 +202,23 @@ show_help() {
 }
 
 case $1 in
-    basic) ## install basic
-        install_basic
+    prerequisite) ## install prerequisite
+        install_prerequisite
         ;;
     node) ## install node
         install_node
         ;;
-    git) ## install git
-        install_git
+    git) ## install git from source
+        install_git_from_source
         ;;
-    nvim) ## install nvim using appimage
-        install_nvim
+    nvim) ## install nvim from source
+        install_nvim_from_source
         ;;
     zsh) ## install zsh
         install_zsh
         ;;
-    fzf) ## install fzf
-        install_fzf
+    fzf) ## install fzf from source
+        install_fzf_from_source
         ;;
     docker) ## install docker
         install_docker
