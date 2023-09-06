@@ -101,6 +101,7 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
 endif
 
 let hostname = substitute(system('hostname'), '\n', '', '')
+let main_ip = substitute(system('ifconfig eth0 | grep inet | grep -v inet6 | head -n1 | awk ''{print $2}\'''), '\n', '', '')
 
 call plug#begin()
 
@@ -225,9 +226,9 @@ call plug#begin()
             let g:mkdp_refresh_slow = 0
             let g:mkdp_command_for_global = 0
             let g:mkdp_open_to_the_world = 1
-            let g:mkdp_open_ip = hostname
+            let g:mkdp_open_ip = main_ip
             let g:mkdp_port = '7777'
-            let g:mkdp_browser = 'echo'
+            let g:mkdp_browser = 'msedge'
             let g:mkdp_echo_preview_url = 1
             let g:mkdp_browserfunc = ''
             let g:mkdp_preview_options = {
@@ -510,8 +511,9 @@ call plug#begin()
     "[ALE]"
 
         Plug 'dense-analysis/ale'
-            " ale-setting {{{
-            let g:ale_set_highlights = 1
+            source ~/.config/nvim/proto.vim
+
+            let g:ale_set_highlights = 0
             let g:ale_set_quickfix = 1
             let g:ale_sign_error = '✖'
             let g:ale_sign_warning = 'ℹ'
@@ -521,13 +523,14 @@ call plug#begin()
             let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
             let g:ale_lint_on_enter = 1
 
-            nmap sp <Plug>(ale_previous_wrap)
-            nmap sn <Plug>(ale_next_wrap)
-            "nmap <Leader>l :ALEToggle<CR>
-            nmap <Leader>d :ALEDetail<CR>
+            nmap <Leader>ep <Plug>(ale_previous_wrap)
+            nmap <Leader>en <Plug>(ale_next_wrap)
+            nmap <Leader>et :ALEToggle<CR>
+            nmap <Leader>ed :ALEDetail<CR>
             let g:ale_linters = {
                 \ 'go': ['go vet', 'go fmt'],
                 \ }
+
 
     "[golang]"
 
@@ -535,6 +538,8 @@ call plug#begin()
         "     let g:go_code_completion_enabled = 0
 
         Plug 'sebdah/vim-delve'
+            nmap <leader>B :DlvToggleBreakpoint<cr>
+            nmap <leader>T :DlvToggleTracepoint<cr>
 
     "[vim-rego]"
 
@@ -632,6 +637,21 @@ endfunction
 :command -nargs=* GoNotImpl call GoNotImpl()
 function! GoNotImpl()
     execute "normal opanic(\"not implement\")"
+endfunction
+
+:command -nargs=* GoErrh call GoErrh(<f-args>)
+function! GoErrh(...)
+    if a:0
+        if a:1 == 1
+            execute "normal oif err != nil { return err }"
+        elseif a:1 == 2
+            execute "normal oif err != nil { return nil, err }"
+        elseif a:1 == 3
+            execute "normal oif err != nil { return nil, nil, err }"
+        endif
+    else
+        execute "normal oif err != nil { return err }"
+    endif
 endfunction
 
 :command -range -nargs=* GoTagsAdd <line1>,<line2>call GoTagsAdd(<f-args>)
@@ -879,11 +899,12 @@ highlight GitGutterChangeDelete ctermfg=4
 
 " list char
 set nolist
-set listchars=tab:\┊\ ,trail:~,extends:>,precedes:<,space:·
-hi SpecialKey ctermfg=DarkGray
+set listchars=tab:\┊\ ,trail:~,precedes:«,extends:»,space:·
+hi SpecialKey cterm=NONE ctermbg=DarkGray
 
 " color column
-execute "set colorcolumn=".join(range(81,120), ',')
+" execute "set colorcolumn=".join(range(81,120), ',')
+set colorcolumn=80,120
 hi ColorColumn cterm=NONE ctermbg=235
 
 " Cursor
