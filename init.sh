@@ -26,6 +26,7 @@ install_prerequisite() {
         sudo yum install -y libatomic
         sudo yum install -y zlib-devel
         sudo yum install -y xmlto
+        sudo yum install -y asciidoctor
         #sudo yum install -y asciidoc
 
         sudo yum groupinstall -y "Development Tools"
