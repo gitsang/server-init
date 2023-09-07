@@ -18,7 +18,6 @@ install_prerequisite() {
         sudo yum install -y zip unzip wget curl
         sudo yum install -y sysstat iotop iftop
         sudo yum install -y python python3 python-devel python3-devel
-        sudo yum groupinstall "Development Tools"
         sudo yum install -y autoconf automake make cmake cmake3
         sudo yum install -y pkgconfig patch gettext
         sudo yum install -y gcc gcc-c++
@@ -29,6 +28,7 @@ install_prerequisite() {
         sudo yum install -y xmlto
         #sudo yum install -y asciidoc
 
+        sudo yum groupinstall -y "Development Tools"
         sudo yum install -y centos-release-scl
         sudo yum-config-manager --enable rhel-server-rhscl-7-rpms
         sudo yum install -y devtoolset-8
