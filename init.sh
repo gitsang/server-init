@@ -15,9 +15,9 @@ install_prerequisite() {
         sudo mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
         sudo wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
         sudo yum makecache
-        sudo yum install -y epel-release
         sudo yum update -y
 
+        sudo yum install -y epel-release
         sudo yum install -y git
         sudo yum install -y zip unzip wget curl
         sudo yum install -y sysstat iotop iftop
@@ -31,7 +31,7 @@ install_prerequisite() {
         sudo yum install -y zlib-devel
         sudo yum install -y xmlto
         sudo yum install -y asciidoctor
-        #sudo yum install -y asciidoc
+        sudo yum install -y asciidoc
 
         sudo yum groupinstall -y "Development Tools"
         sudo yum install -y centos-release-scl
