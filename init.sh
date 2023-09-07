@@ -12,6 +12,10 @@ OS=$(cat /etc/os-release | grep '^ID=' | sed 's/^ID="*\([a-z]*\)"*/\1/')
 install_prerequisite() {
     mkdir -p ~/.local/src
     if [[ $OS == "centos" ]]; then
+        sudo mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+        sudo wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+        sudo yum makecache
+        sudo yum install -y epel-release
         sudo yum update -y
 
         sudo yum install -y git
