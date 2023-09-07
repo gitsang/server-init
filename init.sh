@@ -173,10 +173,6 @@ install_zsh() {
         curl -fLo ~/.zsh/completion/_docker-machine \
             https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine
     fi
-    if [ ! -f ~/.zsh/completion/_docker-compose ]; then
-        curl -fLo ~/.zsh/completion/_docker-compose \
-            https://raw.githubusercontent.com/docker/compose/v2.5.0/contrib/completion/zsh/_docker-compose
-    fi
 
     # 4. configure
     CONFIG_PATH=./shell
