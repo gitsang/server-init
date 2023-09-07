@@ -13,20 +13,27 @@ install_prerequisite() {
     mkdir -p ~/.local/src
     if [[ $OS == "centos" ]]; then
         sudo yum update -y
+
         sudo yum install -y git
         sudo yum install -y zip unzip wget curl
         sudo yum install -y sysstat iotop iftop
         sudo yum install -y python python3 python-devel python3-devel
-	    sudo yum groupinstall "Development Tools"
+        sudo yum groupinstall "Development Tools"
         sudo yum install -y autoconf automake make cmake cmake3
         sudo yum install -y pkgconfig patch gettext
         sudo yum install -y gcc gcc-c++
         sudo yum install -y ninja-build libtool
         sudo yum install -y libuv libuv-devel
-	    sudo yum install -y libatomic
+        sudo yum install -y libatomic
         sudo yum install -y zlib-devel
-        #sudo yum install -y asciidoc
         sudo yum install -y xmlto
+        #sudo yum install -y asciidoc
+
+        sudo yum install -y centos-release-scl
+        sudo yum-config-manager --enable rhel-server-rhscl-7-rpms
+        sudo yum install -y devtoolset-8
+        scl enable devtoolset-8 bash
+
         sudo yum autoremove -y
     elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
         sudo apt update
@@ -111,9 +118,17 @@ install_git_from_source() {
 install_nvim_from_source() {
     # install from source
     pushd ~/.local/src
-        git clone https://github.com/neovim/neovim
+        if [ ! -d neovim ]; then
+            git clone https://github.com/neovim/neovim
+        fi
         cd neovim
-        make CMAKE_BUILD_TYPE=Release
+
+        git clean -xdf
+        git checkout master
+        git pull
+
+        sudo make clean
+        sudo make CMAKE_BUILD_TYPE=Release
         sudo make install
     popd
 
