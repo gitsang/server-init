@@ -31,6 +31,7 @@ install_prerequisite() {
         sudo yum install -y xmlto
         sudo yum install -y asciidoctor
         sudo yum install -y asciidoc
+        sudo yum install -y docbook2X
 
         sudo yum groupinstall -y "Development Tools"
         sudo yum install -y centos-release-scl
