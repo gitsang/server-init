@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# ==============================================================================
+# configs
+# ==============================================================================
+
+list_cache=.session_list.cache
+lens_cache=.session_lens.cache
+
+session_list=(
+    "ns,session,root,localhost,22"
+)
+
+# ==============================================================================
+# functions
+# ==============================================================================
+
+session_create() {
+    arr=(`echo ${1} | tr ',' ' '`)
+    group=${arr[0]}
+    id=${arr[1]}
+    role=${arr[2]}
+    ip=${arr[3]}
+    port=${arr[4]}
+}
+
+write_session_head() {
+    echo "group,id,role,ip,port" > ${list_cache}
+    echo "-----,--,----,--,----" >> ${list_cache}
+}
+
+write_session() {
+    echo "${group},${id},${role},${ip},${port}" >> ${list_cache}
+}
+
+cache_session() {
+    refresh=${1:-refresh}
+    if [[ ! -f "${list_cache}" || ! -f "${lens_cache}" || "${refresh}" == "refresh" ]]; then
+        echo "creating session cache..."
+        write_session_head
+        for session_str in ${session_list[@]}
+        do
+            session_create ${session_str}
+            write_session
+        done
+
+        echo "lengths calculating..."
+        len1=$(( ($(awk -F ',' '{ print $1 }' ${list_cache} | wc -L) / 4 + 1) * 4 ))
+        len2=$(( ($(awk -F ',' '{ print $2 }' ${list_cache} | wc -L) / 4 + 1) * 4 ))
+        len3=$(( ($(awk -F ',' '{ print $3 }' ${list_cache} | wc -L) / 4 + 1) * 4 ))
+        len4=$(( ($(awk -F ',' '{ print $4 }' ${list_cache} | wc -L) / 4 + 1) * 4 ))
+        len5=$(( ($(awk -F ',' '{ print $5 }' ${list_cache} | wc -L) / 4 + 1) * 4 ))
+
+        #len1=$(awk -F ',' '{ print $1 }' ${list_cache} | wc -L)
+        #len2=$(awk -F ',' '{ print $2 }' ${list_cache} | wc -L)
+        #len3=$(awk -F ',' '{ print $3 }' ${list_cache} | wc -L)
+        #len4=$(awk -F ',' '{ print $4 }' ${list_cache} | wc -L)
+        #len5=$(awk -F ',' '{ print $5 }' ${list_cache} | wc -L)
+
+        echo ${len1},${len2},${len3},${len4},${len5} > ${lens_cache}
+    fi
+}
+
+print_session() {
+    lens=(`cat ${lens_cache} | tr ',' ' '`)
+    len1=${lens[0]}
+    len2=${lens[1]}
+    len3=${lens[2]}
+    len4=${lens[3]}
+    len5=${lens[4]}
+
+    awk -F ',' '{
+        printf "| %-'${len1}'s | %-'${len2}'s | %-'${len3}'s | %-'${len4}'s | %-'${len5}'s |\n",$1,$2,$3,$4,$5;
+    }' ${list_cache}
+}
+
+# ==============================================================================
+# main functions
+# ==============================================================================
+
+session_conn() {
+    input_group=${1}
+    input_uid=${2}
+    for session_str in ${session_list[@]}
+    do
+        session_create ${session_str}
+        if [[ "${input_group}" == "${group}" && "${input_uid}" == "${id}" ]]; then
+            ssh ${role}@${ip} -p ${port}
+        fi
+    done
+}
+
+session_list() {
+    cache_session $1
+    print_session
+}
+
+session_help() {
+    echo "usage: $0 [options] group id"
+    echo ""
+    echo "options:"
+    echo "    -h, --help            help"
+    echo "    -l, --list [refresh]  list session"
+    echo ""
+}
+
+# ==============================================================================
+# options
+# ==============================================================================
+
+if [ $# -eq 0 ]; then
+    session_help
+    session_list
+else
+    case $1 in
+        "-l");&
+        "--list")
+            session_list $2
+            ;;
+        "-h");&
+        "--help")
+            session_help
+            ;;
+        *)
+            session_conn $@
+    esac
+fi
