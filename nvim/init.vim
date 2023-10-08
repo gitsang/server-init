@@ -39,8 +39,6 @@ set nowrap
 set background=dark
 set number
 set showcmd
-set wildmenu
-set wildoptions=
 
 " Indent
 filetype on
@@ -418,7 +416,7 @@ call plug#begin()
             endfunction
 
             " Highlight the symbol and its references when holding the cursor.
-            " autocmd CursorHold * silent call CocActionAsync('highlight')
+            autocmd CursorHold * silent call CocActionAsync('highlight')
 
             " Symbol renaming.
             nmap <leader>rn <Plug>(coc-rename)

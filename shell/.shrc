@@ -25,9 +25,9 @@ export GOBIN=$GOPATH/bin
 export GOPROXY=https://goproxy.cn
 export GO111MODULE=on
 export PATH=$PATH:$GOBIN:$GOROOT/bin
-export GONOPROXY='*.sang.ink,*.yealink.com'
-export GONOSUMDB='*.sang.ink,*.yealink.com'
-export GOPRIVATE='gitlab.home.sang.ink,gitcode.yealink.com'
+export GONOPROXY='*.c8g.top,*.yealink.com'
+export GONOSUMDB='*.c8g.top,*.yealink.com'
+export GOPRIVATE='gitlab.home.c8g.top,gitcode.yealink.com'
 #export GOCACHE=off
 
 # libreoffice
@@ -132,15 +132,12 @@ fixmod() {
 }
 
 # docker
-alias rekcod="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock nexdrew/rekcod"
+alias d='docker'
 alias dps='docker ps --format "table {{.Image}}\t{{.Networks}}\t{{.Status}}\t{{.RunningFor}}\t{{.State}}\t{{.Names}}"'
-alias dpsj='curl -XGET --unix-socket /var/run/docker.sock http://localhost/containers/json | jq'
-alias rcli='docker run -it --rm redis redis-cli'
-alias redis-cli='docker run -it --rm redis redis-cli'
-alias swagger='docker run --rm -it  --user $(id -u):$(id -g) -e GOPATH=$(go env GOPATH):/go -v $HOME:$HOME -w $(pwd) quay.io/goswagger/swagger'
+alias rekcod="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock nexdrew/rekcod"
 
 # podman
-alias pm='podman'
+alias p='podman'
 alias pps='podman ps --format "table {{.Image}}\t{{.Networks}}\t{{.Status}}\t{{.RunningFor}}\t{{.State}}\t{{.Names}}"'
 
 # vim
@@ -193,8 +190,19 @@ tmp() {
 
 # make
 mk() {
-    RELATE_PATH=$(realpath $(git rev-parse --show-toplevel) --relative-to=.)
-    make ${@} -C ${RELATE_PATH}
+    relate_path=$(realpath $(git rev-parse --show-toplevel) --relative-to=.)
+
+    index=0
+    for arg in "${@[@]}"; do
+      if [[ $arg == "--" ]]; then
+        index=$((index + 1))
+        break
+      fi
+      index=$((index + 1))
+    done
+
+    echo "make ${@:1:$index-1} -C ${relate_path} ${@:$index}"
+    make "${@:1:$index-1}" -C ${relate_path} "${@:$index}"
 }
 
 # git
