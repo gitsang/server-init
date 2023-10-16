@@ -40,109 +40,23 @@ install_prerequisite() {
         scl enable devtoolset-8 bash
 
         sudo yum autoremove -y
-    elif [[ $OS == "ubuntu" || $OS == "debian" ]]; then
-        sudo apt update
-        sudo apt upgrade -y
-        sudo apt install -y ca-certificates gnupg lsb-release
-        sudo apt install -y git
-        sudo apt install -y zip unzip wget curl
-        sudo apt install -y sysstat iotop iftop
-        sudo apt install -y python python3 python-dev python3-dev
-        sudo apt install -y autoconf automake make cmake cmake3
-        sudo apt install -y ninja-build gettext libtool libtool-bin
-        sudo apt install -y g++
-        sudo apt install -y pkg-config doxygen
-        sudo apt install -y zlib1g-dev
-        sudo apt install -y asciidoc
-        sudo apt install -y xmlto
-        sudo apt autoremove -y
-    elif [[ $OS == "kali" ]]; then
-        sudo apt update
-        sudo apt upgrade -y
-        sudo apt install -y ca-certificates gnupg lsb-release
-        sudo apt install -y git
-        sudo apt install -y zip unzip wget curl
-        sudo apt install -y sysstat iotop iftop
-        sudo apt install -y python2-minimal python2 python-is-python3 2to3
-        sudo apt install -y autoconf automake make cmake cmake3
-        sudo apt install -y ninja-build gettext libtool libtool-bin
-        sudo apt install -y g++
-        sudo apt install -y pkg-config doxygen
-        sudo apt install -y zlib1g-dev
-        sudo apt install -y asciidoc
-        sudo apt install -y xmlto
-        sudo apt autoremove -y
-    fi
-}
-
-# ========================= node ========================= #
-
-install_node() {
-    # 1. install node from package
-    if [[ $OS == "centos" ]]; then
-        curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
-        sudo yum install -y nodejs npm
     elif [[ $OS == "ubuntu" || $OS == "debian" || $OS == "kali" ]]; then
-        # node
-        curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-        sudo apt install -y nodejs
-    fi
+        sudo apt update
+        sudo apt upgrade -y
 
-    # 2. install yarn through npm
-    sudo npm install --global yarn
-}
+        sudo apt install -y ca-certificates gnupg lsb-release
+        sudo apt install -y git
+        sudo apt install -y zip unzip wget curl
+        sudo apt install -y sysstat iotop iftop
+        sudo apt install -y autoconf automake make cmake
+        sudo apt install -y ninja-build gettext libtool libtool-bin
+        sudo apt install -y g++
+        sudo apt install -y pkg-config doxygen
+        sudo apt install -y zlib1g-dev
+        sudo apt install -y asciidoc
+        sudo apt install -y xmlto
 
-# ========================= git ========================= #
-
-install_git_from_source() {
-    # 1. install from source
-    pushd ~/.local/src
-        if [[ ! -f "v2.40.1.tar.gz" ]]; then
-            wget https://github.com/git/git/archive/refs/tags/v2.40.1.tar.gz
-        fi
-        if [[ ! -d "git-2.40.1" ]]; then
-            tar -zxf v2.40.1.tar.gz
-        fi
-        cd git-2.40.1
-        make configure
-        ./configure --prefix=/usr
-        make all doc info
-        sudo make install install-doc install-html install-info
-    popd
-
-    # 2. install plugin
-    sudo npm install -g git-split-diffs
-
-    # 3. configure
-    CONFIG_PATH=./git
-    cp ${CONFIG_PATH}/.gitconfig ~
-}
-
-# ========================= nvim ========================= #
-
-install_nvim_from_source() {
-    # install from source
-    pushd ~/.local/src
-        if [ ! -d neovim ]; then
-            git clone https://github.com/neovim/neovim
-        fi
-        cd neovim
-
-        git clean -xdf
-        git checkout master
-        git pull
-
-        sudo make clean
-        sudo make CMAKE_BUILD_TYPE=Release
-        sudo make install
-    popd
-
-    # confignure
-    CONFIG_PATH=./nvim
-    if [ ! -d ~/.config/nvim ]; then
-        mkdir -p ~/.config/nvim/
-        cp ${CONFIG_PATH}/init.vim ~/.config/nvim/
-        cp ${CONFIG_PATH}/coc-settings.json ~/.config/nvim/
+        sudo apt autoremove -y
     fi
 }
 
@@ -190,11 +104,107 @@ install_zsh() {
 
 # ========================= fzf ========================= #
 
-install_fzf_from_source() {
+install_fzf() {
     if [ ! -d ~/.fzf ]; then
         git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     fi
     ~/.fzf/install
+}
+
+# ========================= node ========================= #
+
+install_node() {
+    node_version=v18.18.2
+
+    # 0. check version
+    if command -v node >/dev/null 2>&1; then
+        node_current_version=$(command node --version 2>/dev/null)
+    fi
+    if [[ ${node_current_version} == ${node_version} ]]; then
+        exit
+    fi
+
+    # 1. install from pre-build
+    node_prebuild_txz=node-${node_version}-linux-x64.tar.xz
+    node_prebuild_url=https://nodejs.org/dist/${node_version}/${node_prebuild_txz}
+    node_dist=/usr/local/lib
+    node_folder=node-${node_version}-linux-x64
+    pushd ~/.local/src
+        # download
+        rm -fr ${node_prebuild_txz}
+        curl -C - -LO ${node_prebuild_url}
+        # install
+        sudo rm -fr ${node_dist}/${node_folder}
+        sudo tar -C ${node_dist} -xvf ${node_prebuild_txz}
+        # link
+        sudo rm -fr ${node_dist}/nodejs
+        sudo ln -s ${node_dist}/node-${node_version}-linux-x64 ${node_dist}/nodejs
+    popd
+}
+
+install_yarn() {
+    sudo npm install --global yarn
+}
+
+# ========================= git ========================= #
+
+install_git() {
+    # 1. install from source
+    git_version=2.42.0
+    git_source_tgz=v${git_version}.tar.gz
+    git_source_dir=git-${git_version}
+    git_source_url=https://github.com/git/git/archive/refs/tags/${git_source_tgz}
+    pushd ~/.local/src
+        # download
+        if [[ ! -f "${git_source_tgz}" ]]; then
+            curl -LO ${git_source_url}
+        fi
+        # build
+        if [[ ! -d "${git_source_dir}" ]]; then
+            tar -zxvf ${git_source_tgz}
+        fi
+        cd ${git_source_dir}
+        make configure
+        ./configure --prefix=/usr
+        make all doc info
+        # install
+        sudo make install install-doc install-html install-info
+    popd
+
+    # 2. install plugin
+    sudo npm install -g git-split-diffs
+
+    # 3. configure
+    git_config_path=./git
+    cp ${git_config_path}/.gitconfig ~
+}
+
+# ========================= nvim ========================= #
+
+install_nvim() {
+    # install from source
+    pushd ~/.local/src
+        if [ ! -d neovim ]; then
+            git clone https://github.com/neovim/neovim
+        fi
+        cd neovim
+
+        git clean -xdf
+        git checkout master
+        git pull
+
+        make clean
+        make CMAKE_BUILD_TYPE=Release
+        sudo make install
+    popd
+
+    # confignure
+    CONFIG_PATH=./nvim
+    if [ ! -d ~/.config/nvim ]; then
+        mkdir -p ~/.config/nvim/
+        cp ${CONFIG_PATH}/init.vim ~/.config/nvim/
+        cp ${CONFIG_PATH}/coc-settings.json ~/.config/nvim/
+    fi
 }
 
 # ========================= docker ========================= #
@@ -229,20 +239,20 @@ case $1 in
     prerequisite) ## install prerequisite
         install_prerequisite
         ;;
-    node) ## install node
-        install_node
-        ;;
-    git) ## install git from source
-        install_git_from_source
-        ;;
-    nvim) ## install nvim from source
-        install_nvim_from_source
-        ;;
     zsh) ## install zsh
         install_zsh
         ;;
     fzf) ## install fzf from source
-        install_fzf_from_source
+        install_fzf
+        ;;
+    node) ## install node
+        install_node
+        ;;
+    git) ## install git from source
+        install_git
+        ;;
+    nvim) ## install nvim from source
+        install_nvim
         ;;
     docker) ## install docker
         install_docker
