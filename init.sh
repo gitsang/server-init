@@ -31,7 +31,6 @@ install_prerequisite() {
         sudo yum install -y xmlto
         sudo yum install -y asciidoctor
         sudo yum install -y asciidoc
-        sudo yum install -y docbook2X
 
         sudo yum groupinstall -y "Development Tools"
         sudo yum install -y centos-release-scl
@@ -81,6 +80,7 @@ configure_zsh() {
     cp ${shell_config_path}/.bashrc ~
     cp ${shell_config_path}/.bash_aliases ~
     chsh -s $(which zsh)
+
 }
 
 # ========================= fzf ========================= #
@@ -97,7 +97,7 @@ install_fzf() {
 install_node() {
     node_version=v18.18.2
 
-    # 0. check version
+    # check version
     if command -v node >/dev/null 2>&1; then
         node_current_version=$(command node --version 2>/dev/null)
     fi
@@ -105,7 +105,7 @@ install_node() {
         exit
     fi
 
-    # 1. install from pre-build
+    # install from pre-build
     node_prebuild_txz=node-${node_version}-linux-x64.tar.xz
     node_prebuild_url=https://nodejs.org/dist/${node_version}/${node_prebuild_txz}
     node_dist=/usr/local/lib
@@ -123,6 +123,13 @@ install_node() {
     popd
 }
 
+configure_node() {
+    keep_path=":/usr/local/lib/nodejs/bin"
+    if ! sudo grep "secure_path" /etc/sudoers | grep -q "${keep_path}"; then
+        sudo sed -i "s|secure_path=\"\([^\"].*\)\"|secure_path=\"\1${keep_path}\"|" /etc/sudoers
+    fi
+}
+
 install_yarn() {
     sudo npm install --global yarn
 }
@@ -130,8 +137,17 @@ install_yarn() {
 # ========================= git ========================= #
 
 install_git() {
-    # 1. install from source
     git_version=2.42.0
+
+    # check version
+    if command -v git >/dev/null 2>&1; then
+        git_current_version=$(command git --version 2>/dev/null | awk '{print $3}')
+    fi
+    if [[ ${git_current_version} == ${git_version} ]]; then
+        exit
+    fi
+
+    # install from source
     git_source_tgz=v${git_version}.tar.gz
     git_source_dir=git-${git_version}
     git_source_url=https://github.com/git/git/archive/refs/tags/${git_source_tgz}
@@ -140,24 +156,29 @@ install_git() {
         if [[ ! -f "${git_source_tgz}" ]]; then
             curl -LO ${git_source_url}
         fi
+
         # build
         if [[ ! -d "${git_source_dir}" ]]; then
             tar -zxvf ${git_source_tgz}
         fi
         cd ${git_source_dir}
+        make clean
         make configure
         ./configure --prefix=/usr
-        make all doc info
+        make -j$(grep -c '^processor' /proc/cpuinfo) all
+
         # install
-        sudo make install install-doc install-html install-info
+        sudo make install
     popd
+}
 
-    # 2. install plugin
-    sudo npm install -g git-split-diffs
-
-    # 3. configure
+configure_git() {
+    # configure
     git_config_path=./git
     cp ${git_config_path}/.gitconfig ~
+
+    # install plugin
+    sudo npm install -g git-split-diffs
 }
 
 # ========================= nvim ========================= #
@@ -175,7 +196,7 @@ install_nvim() {
         git pull
 
         make clean
-        make CMAKE_BUILD_TYPE=Release
+        make -j$(grep -c '^processor' /proc/cpuinfo) CMAKE_BUILD_TYPE=Release
         sudo make install
     popd
 
@@ -199,14 +220,20 @@ install_docker() {
 
 show_help() {
     # usage
-    echo "Usage: ${0} Option"
+    echo "Usage: ${0} Module [Option]"
 
-    # options
+    # module
+    echo ""
+    echo "Module:"
+    grep -E '\s+\([a-zA-Z_-]+\).*##' $0 | \
+        sed -r 's/\s+\(([a-zA-Z_-]+)\).*## (.*)/\1|\2/g' | \
+        awk -F '|' '{printf "    \033[36m%-20s\033[0m %s\n", $1, $2}'
+
+    # option
     echo ""
     echo "Option:"
-    grep -E '\s+[a-zA-Z_-]+\).*##' $0 | \
-        sed -r 's/\s+([a-zA-Z_-]+)\).*## (.*)/\1|\2/g' | \
-        awk -F '|' '{printf "\t\033[36m%-20s\033[0m %s\n", $1, $2}'
+    echo "    install    install module (default)"
+    echo "    configure  configure module"
 
     # config
     echo ""
@@ -217,32 +244,109 @@ show_help() {
 }
 
 case $1 in
-    prerequisite) ## install prerequisite
-        install_prerequisite
+    (prerequisite) ## install prerequisite
+        case $2 in
+            (install)
+                install_prerequisite
+                ;;
+            (configure)
+                ;;
+            (*)
+                install_prerequisite
+                ;;
+        esac
         ;;
-    zsh) ## install zsh
-        install_zsh
-        configure_zsh
+    (zsh) ## install zsh
+        case $2 in
+            (install)
+                install_zsh
+                ;;
+            (configure)
+                configure_zsh
+                ;;
+            (*)
+                install_zsh
+                configure_zsh
+                ;;
+        esac
         ;;
-    fzf) ## install fzf from source
-        install_fzf
+    (fzf) ## install fzf
+        case $2 in
+            (install)
+                install_fzf
+                ;;
+            (configure)
+                ;;
+            (*)
+                install_fzf
+                ;;
+        esac
         ;;
-    node) ## install node
-        install_node
+    (node) ## install node
+        case $2 in
+            (install)
+                install_node
+                ;;
+            (configure)
+                configure_node
+                ;;
+            (*)
+                install_node
+                configure_node
+                ;;
+        esac
         ;;
-    yarn) ## install yarn
-        install_yarn
+    (yarn) ## install yarn
+        case $2 in
+            (install)
+                install_yarn
+                ;;
+            (configure)
+                ;;
+            (*)
+                install_yarn
+                ;;
+        esac
         ;;
-    git) ## install git from source
-        install_git
+    (git) ## install git
+        case $2 in
+            (install)
+                install_git
+                ;;
+            (configure)
+                configure_git
+                ;;
+            (*)
+                install_git
+                configure_git
+                ;;
+        esac
         ;;
-    nvim) ## install nvim from source
-        install_nvim
+    (nvim) ## install nvim
+        case $2 in
+            (install)
+                install_nvim
+                ;;
+            (configure)
+                ;;
+            (*)
+                install_nvim
+                ;;
+        esac
         ;;
-    docker) ## install docker
-        install_docker
+    (docker) ## install docker
+        case $2 in
+            (install)
+                install_docker
+                ;;
+            (configure)
+                ;;
+            (*)
+                install_docker
+                ;;
+        esac
         ;;
-    *)
+    (*)
         show_help
         ;;
 esac

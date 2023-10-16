@@ -10,6 +10,9 @@ export DISPLAY=${REMOTE_IP}:0.0
 export PATH=$PATH:~/.local/bin:/usr/local/bin:.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib:./libs:.
 
+# node
+export PATH=$PATH:/usr/local/lib/nodejs/bin
+
 # java
 export JAVA_HOME=/usr/lib/jvm/jre-openjdk
 export JRE_HOME=${JAVA_HOME}/jre
