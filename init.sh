@@ -63,7 +63,7 @@ install_prerequisite() {
 # ========================= zsh ========================= #
 
 install_zsh() {
-    # 1. install from package
+    # install from package management tool
     if [[ $OS == "centos" ]]; then
         sudo yum install -y zsh
         sudo yum autoremove -y
@@ -71,34 +71,15 @@ install_zsh() {
         sudo apt install -y zsh
         sudo apt autoremove -y
     fi
+}
 
-    # 2. install plugin
-    if [ ! -d ~/.zsh/plugins/zsh-autosuggestions ]; then
-        git clone https://github.com/zsh-users/zsh-autosuggestions \
-            ~/.zsh/plugins/zsh-autosuggestions
-    fi
-    if [ ! -d ~/.zsh/plugins/zsh-syntax-highlighting ]; then
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
-            ~/.zsh/plugins/zsh-syntax-highlighting
-    fi
-
-    # 3. install completion
-    mkdir -p ~/.zsh/completion
-    if [ ! -f ~/.zsh/completion/_docker ]; then
-        curl -fLo ~/.zsh/completion/_docker \
-            https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
-    fi
-    if [ ! -f ~/.zsh/completion/_docker-machine ]; then
-        curl -fLo ~/.zsh/completion/_docker-machine \
-            https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine
-    fi
-
-    # 4. configure
-    CONFIG_PATH=./shell
-    cp ${CONFIG_PATH}/.shrc ~
-    cp ${CONFIG_PATH}/.zshrc ~
-    cp ${CONFIG_PATH}/.bashrc ~
-    cp ${CONFIG_PATH}/.bash_aliases ~
+configure_zsh() {
+    # configure
+    shell_config_path=./shell
+    cp ${shell_config_path}/.shrc ~
+    cp ${shell_config_path}/.zshrc ~
+    cp ${shell_config_path}/.bashrc ~
+    cp ${shell_config_path}/.bash_aliases ~
     chsh -s $(which zsh)
 }
 
@@ -241,12 +222,16 @@ case $1 in
         ;;
     zsh) ## install zsh
         install_zsh
+        configure_zsh
         ;;
     fzf) ## install fzf from source
         install_fzf
         ;;
     node) ## install node
         install_node
+        ;;
+    yarn) ## install yarn
+        install_yarn
         ;;
     git) ## install git from source
         install_git

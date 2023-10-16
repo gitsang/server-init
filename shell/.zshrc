@@ -32,17 +32,9 @@ setopt HIST_BEEP                 # Beep when accessing nonexistent history.
 
 # =============== Plugin =============== #
 
+plugins=(docker docker-compose)
 fpath=(~/.zsh/completion $fpath)
 autoload -Uz compinit && compinit -i
-
-# git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/plugins/zsh-autosuggestions
-source ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/plugins/zsh-syntax-highlighting
-source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# curl -fLo ~/.zsh/completion/_docker https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
-# curl -fLo ~/.zsh/completion/_docker-machine https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine
 
 # =============== Prompt Option =============== #
 
