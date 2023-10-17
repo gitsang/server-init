@@ -216,6 +216,12 @@ install_docker() {
     sh -x get-docker.sh
 }
 
+configure_docker() {
+    sudo usermod -aG docker $(id -u -n)
+    sudo chmod a+rw /var/run/docker.sock
+    sudo systemctl restart docker
+}
+
 # ========================= help ========================= #
 
 show_help() {
@@ -340,9 +346,11 @@ case $1 in
                 install_docker
                 ;;
             (configure)
+                configure_docker
                 ;;
             (*)
                 install_docker
+                configure_docker
                 ;;
         esac
         ;;
