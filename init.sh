@@ -204,10 +204,8 @@ install_nvim() {
 
 configure_nvim() {
     nvim_conf_path=./nvim
-    if [ ! -d ~/.config/nvim ]; then
-        mkdir -p ~/.config/nvim/
-        cp ${nvim_conf_path}/* ~/.config/nvim/
-    fi
+    mkdir -p ~/.config/nvim/
+    cp ${nvim_conf_path}/* ~/.config/nvim/
 }
 
 # ========================= docker ========================= #
