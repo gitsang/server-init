@@ -55,6 +55,7 @@ install_prerequisite() {
         sudo apt install -y asciidoc
         sudo apt install -y xmlto
         sudo apt install -y libcurl4-openssl-dev libcurl4-gnutls-dev
+        sudo apt install -y ctags
 
         sudo apt autoremove -y
     fi
