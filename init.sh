@@ -335,9 +335,11 @@ case $1 in
                 install_nvim
                 ;;
             (configure)
+                configure_nvim
                 ;;
             (*)
                 install_nvim
+                configure_nvim
                 ;;
         esac
         ;;
