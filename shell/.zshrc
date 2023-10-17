@@ -36,6 +36,12 @@ plugins=(docker docker-compose)
 fpath=(~/.zsh/completion $fpath)
 autoload -Uz compinit && compinit -i
 
+# git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/plugins/zsh-autosuggestions
+source ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/plugins/zsh-syntax-highlighting
+source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
 # =============== Prompt Option =============== #
 
 # color
