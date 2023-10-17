@@ -54,6 +54,7 @@ install_prerequisite() {
         sudo apt install -y zlib1g-dev
         sudo apt install -y asciidoc
         sudo apt install -y xmlto
+        sudo apt install -y libcurl4-openssl-dev
 
         sudo apt autoremove -y
     fi
