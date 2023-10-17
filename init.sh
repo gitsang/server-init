@@ -165,10 +165,10 @@ install_git() {
         make clean
         make configure
         ./configure --prefix=/usr
-        make -j$(grep -c '^processor' /proc/cpuinfo) all
+        make -j$(grep -c '^processor' /proc/cpuinfo) all doc
 
         # install
-        sudo make install
+        sudo make -j$(grep -c '^processor' /proc/cpuinfo) install install-doc install-html
     popd
 }
 
@@ -197,7 +197,7 @@ install_nvim() {
 
         make clean
         make -j$(grep -c '^processor' /proc/cpuinfo) CMAKE_BUILD_TYPE=Release
-        sudo make install
+        sudo make -j$(grep -c '^processor' /proc/cpuinfo) install
     popd
 
     # confignure
