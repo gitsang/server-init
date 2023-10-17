@@ -200,13 +200,13 @@ install_nvim() {
         make -j$(grep -c '^processor' /proc/cpuinfo) CMAKE_BUILD_TYPE=Release
         sudo make -j$(grep -c '^processor' /proc/cpuinfo) install
     popd
+}
 
-    # confignure
-    CONFIG_PATH=./nvim
+configure_nvim() {
+    nvim_conf_path=./nvim
     if [ ! -d ~/.config/nvim ]; then
         mkdir -p ~/.config/nvim/
-        cp ${CONFIG_PATH}/init.vim ~/.config/nvim/
-        cp ${CONFIG_PATH}/coc-settings.json ~/.config/nvim/
+        cp ${nvim_conf_path}/* ~/.config/nvim/
     fi
 }
 
