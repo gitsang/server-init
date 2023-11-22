@@ -8,7 +8,7 @@ export DISPLAY=${REMOTE_IP}:0.0
 
 # path
 export PATH=$PATH:~/.local/bin:/usr/local/bin:.
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib:./libs:.
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/:./lib:./libs:.
 
 # node
 export PATH=$PATH:/usr/local/lib/nodejs/bin
@@ -114,13 +114,13 @@ wip() {
     curl cip.cc
 
     echo -e "\n\e[32m=====default=====\e[0m"
-    curl ip.p3terx.com
+    curl ifconfig.co
 
     echo -e "\n\e[32m=====v6=====\e[0m"
-    curl -6 ip.p3terx.com
+    curl -6 ifconfig.co
 
     echo -e "\n\e[32m=====v4=====\e[0m"
-    curl -4 ip.p3terx.com
+    curl -4 ifconfig.co
 }
 alias ports='netstat -ntlp | sort'
 
@@ -138,6 +138,9 @@ fixmod() {
 alias d='docker'
 alias dps='docker ps --format "table {{.Image}}\t{{.Networks}}\t{{.Status}}\t{{.RunningFor}}\t{{.State}}\t{{.Names}}"'
 alias rekcod="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock nexdrew/rekcod"
+
+# k8s
+alias k='kubectl'
 
 # podman
 alias p='podman'
@@ -194,18 +197,9 @@ tmp() {
 # make
 mk() {
     relate_path=$(realpath $(git rev-parse --show-toplevel) --relative-to=.)
-
-    index=0
-    for arg in "${@[@]}"; do
-      if [[ $arg == "--" ]]; then
-        index=$((index + 1))
-        break
-      fi
-      index=$((index + 1))
-    done
-
-    echo "make ${@:1:$index-1} -C ${relate_path} ${@:$index}"
-    make "${@:1:$index-1}" -C ${relate_path} "${@:$index}"
+    pushd ${relate_path}
+        make ${@}
+    popd
 }
 
 # git
@@ -369,16 +363,18 @@ trash() {
             ;;
         *)
             TRASH_DIR=~/.trash
-            REAL_PATH=`realpath $@`
-            TRASH_NAME=`realpath $@ | sed 's/\//##/g'`
-            TIME=`date "+%Y%m%d-%H%M%S"`
-            TRASH_PATH=$TRASH_DIR/$TIME-%TRASH%-$TRASH_NAME
+            for input in ${@[@]}; do
+                REAL_PATH=`realpath $input`
+                TRASH_NAME=`realpath $input | sed 's/\//##/g'`
+                TIME=`date "+%Y%m%d-%H%M%S"`
+                TRASH_PATH=$TRASH_DIR/$TIME-%TRASH%-$TRASH_NAME
 
-            if [ "$REAL_PATH" != "/" ]; then
-                mkdir -p $TRASH_DIR
-                mv $REAL_PATH $TRASH_PATH
-                echo "del $REAL_PATH to $TRASH_PATH"
-            fi
+                if [ "$REAL_PATH" != "/" ]; then
+                    mkdir -p $TRASH_DIR
+                    mv $REAL_PATH $TRASH_PATH
+                    echo "del $REAL_PATH to $TRASH_PATH"
+                fi
+            done
             ;;
     esac
 }

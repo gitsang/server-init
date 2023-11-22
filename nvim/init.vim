@@ -55,7 +55,9 @@ autocmd filetype go                     setlocal shiftwidth=4 softtabstop=4 tabs
 autocmd filetype make,makefile,Makefile setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab
 autocmd filetype cpp                    setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab smartindent cindent
 autocmd filetype javascript             setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
+autocmd filetype json,yaml              setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
 autocmd BufNewFile,BufRead *.api        setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab
+autocmd BufNewFile,BufRead *.proto      setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
 
 "--------------------
 " Keymap
@@ -427,6 +429,7 @@ call plug#begin()
             " Formatting selected code.
             xmap <leader>f  <Plug>(coc-format-selected)
             nmap <leader>f  <Plug>(coc-format-selected)
+            nmap <leader>F  <Plug>(coc-format)
 
             augroup mygroup
                 autocmd!
