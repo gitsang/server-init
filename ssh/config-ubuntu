@@ -3,8 +3,8 @@ Host gitcode
     Preferredauthentications publickey
     IdentityFile ~/.ssh/id_rsa
 
-Host gitlab.home.sang.ink
-    Hostname gitlab.home.sang.ink
+Host gitlab.home.c8g.top
+    Hostname gitlab.home.c8g.top
     Preferredauthentications publickey
     IdentityFile ~/.ssh/id_rsa
     ProxyCommand /usr/bin/nc -x 127.0.0.1:1084 -X connect %h %p
