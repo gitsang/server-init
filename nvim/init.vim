@@ -112,6 +112,15 @@ call plug#begin()
     "[startify]"
 
         Plug 'mhinz/vim-startify'
+            let g:startify_ascii = [
+                \ '__     _____ __  __ ',
+                \ '\ \   / /_ _|  \/  |',
+                \ ' \ \ / / | || |\/| |',
+                \ '  \ V /  | || |  | |',
+                \ '   \_/  |___|_|  |_|',
+                \ '                    ',
+                \ ]
+            let g:startify_custom_header = 'startify#pad(g:startify_ascii + startify#fortune#boxed())'
 
     "[easymotion]"
 
@@ -122,7 +131,7 @@ call plug#begin()
 
         Plug 'morhetz/gruvbox'
 
-    "[vim airline]"
+    "[airline]"
 
         Plug 'vim-airline/vim-airline'
             " statistic
@@ -172,121 +181,10 @@ call plug#begin()
             let g:airline_theme='luna'
 
     "--------------------
-    " Tools
-    "--------------------
-
-    "[diff]"
-
-        Plug 'will133/vim-dirdiff'
-
-    "[async]"
-
-        Plug 'tpope/vim-dispatch'
-
-        Plug 'skywind3000/asyncrun.vim'
-           let g:asyncrun_open = 8
-           let g:asyncrun_qfid = 10
-
-    "[leader function]"
-
-        "Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
-
-    "[git gutter]"
-
-        Plug 'airblade/vim-gitgutter'
-            let g:gitgutter_max_signs = 500
-            " map key
-            let g:gitgutter_map_keys = 0
-            " colors
-            let g:gitgutter_override_sign_column_highlight = 0
-
-            nmap <leader>g <Plug>(GitGutterPreviewHunk)
-            nmap <leader><backspace> <Plug>(GitGutterUndoHunk)
-
-    "--------------------
-    " Formater
-    "--------------------
-
-    "[commentary]"
-
-        Plug 'tpope/vim-commentary'
-
-    "[markdown preview]"
-
-        Plug 'godlygeek/tabular'
-
-        Plug 'plasticboy/vim-markdown', { 'for': ['markdown'] }
-            let g:vim_markdown_folding_disabled = 1
-            let g:vim_markdown_toc_autofit = 1
-            let g:vim_markdown_follow_anchor = 1
-
-        Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
-            let g:mkdp_auto_start = 0
-            let g:mkdp_auto_close = 1
-            let g:mkdp_refresh_slow = 0
-            let g:mkdp_command_for_global = 0
-            let g:mkdp_open_to_the_world = 1
-            let g:mkdp_open_ip = main_ip
-            let g:mkdp_port = '7777'
-            let g:mkdp_browser = 'msedge'
-            let g:mkdp_echo_preview_url = 1
-            let g:mkdp_browserfunc = ''
-            let g:mkdp_preview_options = {
-                \ 'mkit': {},
-                \ 'katex': {},
-                \ 'uml': {},
-                \ 'maid': {},
-                \ 'disable_sync_scroll': 0,
-                \ 'sync_scroll_type': 'middle',
-                \ 'hide_yaml_meta': 1,
-                \ 'sequence_diagrams': {},
-                \ 'flowchart_diagrams': {},
-                \ 'content_editable': v:false,
-                \ 'disable_filename': 0
-                \ }
-            let g:mkdp_markdown_css = ''
-            let g:mkdp_highlight_css = ''
-            let g:mkdp_page_title = '「${name}」'
-            let g:mkdp_filetypes = ['markdown']
-
-            nmap <leader>m <Plug>MarkdownPreviewToggle
-            nmap <F8> <Plug>MarkdownPreviewToggle
-
-    "[tagbar-markdown]"
-
-        Plug 'lvht/tagbar-markdown'
-
-    "[markdown-toc]"
-
-        Plug 'mzlogin/vim-markdown-toc'
-            let g:vmt_auto_update_on_save = 1
-            let g:vmt_dont_insert_fence = 0
-            let g:vmt_fence_text = 'markdown-toc'
-            let g:vmt_fence_closing_text = '/markdown-toc'
-            let g:vmt_fence_hidden_markdown_style = ''
-            let g:vmt_cycle_list_item_markers = 0
-            let g:vmt_list_item_char = '-'
-            let g:vmt_include_headings_before = 1
-            let g:vmt_list_indent_text = '  '
-            " :GenToc
-
-    "[git gutter]"
-
-        Plug 'airblade/vim-gitgutter'
-            let g:gitgutter_max_signs = 500
-            " map key
-            let g:gitgutter_map_keys = 0
-            " colors
-            let g:gitgutter_override_sign_column_highlight = 0
-
-            nmap <leader>g <Plug>(GitGutterPreviewHunk)
-            nmap <leader><backspace> <Plug>(GitGutterUndoHunk)
-
-    "--------------------
     " SideBar
     "--------------------
 
-    "[NERDTree]"
+    "[tree]"
 
         nmap <leader>b :NERDTreeToggle<cr>:TagbarToggle<cr><C-w>l
 
@@ -308,6 +206,7 @@ call plug#begin()
             nmap <leader>t :NERDTreeToggle<cr>
             nmap <leader>v :NERDTreeFind<cr>
 
+    "[tagbar]"
 
         Plug 'majutsushi/tagbar', { 'do': 'apt install ctags -y', 'on': 'TagbarToggle' }
             let g:tagbar_type_go = {
@@ -341,6 +240,22 @@ call plug#begin()
             set tags=tags;
             set autochdir
             nmap <leader>y :TagbarToggle<cr>
+
+    "--------------------
+    " Tools
+    "--------------------
+
+    "[diff]"
+
+        Plug 'will133/vim-dirdiff'
+
+    "[async]"
+
+        Plug 'tpope/vim-dispatch'
+
+        Plug 'skywind3000/asyncrun.vim'
+           let g:asyncrun_open = 8
+           let g:asyncrun_qfid = 10
 
     "--------------------
     " Coding Support
@@ -509,7 +424,7 @@ call plug#begin()
             " Resume latest coc list.
             " nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
-    "[ALE]"
+    "[linter]"
 
         Plug 'dense-analysis/ale'
             source ~/.config/nvim/proto.vim
@@ -532,17 +447,33 @@ call plug#begin()
                 \ 'go': ['go vet', 'go fmt'],
                 \ }
 
+    "[formater]"
+
+        " Vim tools for comment stuff out
+        Plug 'tpope/vim-commentary'
+
+        " Vim script for text filtering and alignment
+        Plug 'godlygeek/tabular'
 
     "[golang]"
-
-        " Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-        "     let g:go_code_completion_enabled = 0
 
         Plug 'sebdah/vim-delve'
             nmap <leader>B :DlvToggleBreakpoint<cr>
             nmap <leader>T :DlvToggleTracepoint<cr>
 
-    "[vim-rego]"
+    "[git]"
+
+        Plug 'airblade/vim-gitgutter'
+            let g:gitgutter_max_signs = 500
+            " map key
+            let g:gitgutter_map_keys = 0
+            " colors
+            let g:gitgutter_override_sign_column_highlight = 0
+
+            nmap <leader>g <Plug>(GitGutterPreviewHunk)
+            nmap <leader><backspace> <Plug>(GitGutterUndoHunk)
+
+    "[rego]"
 
         Plug 'tsandall/vim-rego'
 
@@ -558,13 +489,60 @@ call plug#begin()
             "   autocmd BufWritePre * undojoin | Neoformat
             " augroup END
 
-    "[commentary]"
-
-        Plug 'tpope/vim-commentary'
-
     "[jinja]"
 
         Plug 'Glench/Vim-Jinja2-Syntax'
+
+    "[markdown]"
+
+        Plug 'plasticboy/vim-markdown', { 'for': ['markdown'] }
+            let g:vim_markdown_folding_disabled = 1
+            let g:vim_markdown_toc_autofit = 1
+            let g:vim_markdown_follow_anchor = 1
+
+        Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+            let g:mkdp_auto_start = 0
+            let g:mkdp_auto_close = 1
+            let g:mkdp_refresh_slow = 0
+            let g:mkdp_command_for_global = 0
+            let g:mkdp_open_to_the_world = 1
+            let g:mkdp_open_ip = main_ip
+            let g:mkdp_port = '7777'
+            let g:mkdp_browser = 'msedge'
+            let g:mkdp_echo_preview_url = 1
+            let g:mkdp_browserfunc = ''
+            let g:mkdp_preview_options = {
+                \ 'mkit': {},
+                \ 'katex': {},
+                \ 'uml': {},
+                \ 'maid': {},
+                \ 'disable_sync_scroll': 0,
+                \ 'sync_scroll_type': 'middle',
+                \ 'hide_yaml_meta': 1,
+                \ 'sequence_diagrams': {},
+                \ 'flowchart_diagrams': {},
+                \ 'content_editable': v:false,
+                \ 'disable_filename': 0
+                \ }
+            let g:mkdp_markdown_css = ''
+            let g:mkdp_highlight_css = ''
+            let g:mkdp_page_title = '「${name}」'
+            let g:mkdp_filetypes = ['markdown']
+
+            nmap <leader>m <Plug>MarkdownPreviewToggle
+            nmap <F8> <Plug>MarkdownPreviewToggle
+
+        Plug 'mzlogin/vim-markdown-toc'
+            let g:vmt_auto_update_on_save = 1
+            let g:vmt_dont_insert_fence = 0
+            let g:vmt_fence_text = 'markdown-toc'
+            let g:vmt_fence_closing_text = '/markdown-toc'
+            let g:vmt_fence_hidden_markdown_style = ''
+            let g:vmt_cycle_list_item_markers = 0
+            let g:vmt_list_item_char = '-'
+            let g:vmt_include_headings_before = 1
+            let g:vmt_list_indent_text = '  '
+            " :GenToc
 
 call plug#end()
 
