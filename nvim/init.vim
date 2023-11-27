@@ -455,6 +455,10 @@ call plug#begin()
         " Vim script for text filtering and alignment
         Plug 'godlygeek/tabular'
 
+    "[ai]"
+
+        Plug 'Exafunction/codeium.vim', { 'branch': 'main' }
+
     "[golang]"
 
         Plug 'sebdah/vim-delve'
