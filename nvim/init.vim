@@ -458,6 +458,7 @@ call plug#begin()
     "[ai]"
 
         Plug 'Exafunction/codeium.vim', { 'branch': 'main' }
+            let g:codeium_no_map_tab = 1
 
     "[golang]"
 
