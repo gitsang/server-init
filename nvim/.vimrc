@@ -6,15 +6,11 @@
 let mapleader=" "
 set pastetoggle=<F12>
 set nocompatible
-set mouse=
-set backspace=indent,eol,start
-set encoding=utf-8 fileencodings=utf-8
-set updatetime=250
-set cmdheight=2
-set signcolumn=yes
-
 set nobackup
 set nowritebackup
+set mouse=
+set backspace=indent,eol,start
+set updatetime=250
 
 "--------------------
 " Appearance
@@ -23,10 +19,12 @@ set nowritebackup
 syntax on
 set t_Co=256
 set guifont=iosevka:h14:cANSI
+set encoding=utf-8 fileencodings=utf-8
 set nowrap
 set background=dark
 set number
 set showcmd
+set cmdheight=2
 
 "--------------------
 " Indent
@@ -41,14 +39,16 @@ set shiftwidth=4
 set softtabstop=4
 set tabstop=4
 
-autocmd filetype sh                     setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent expandtab
-autocmd filetype go                     setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab
-autocmd filetype make,makefile,Makefile setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab
-autocmd filetype cpp                    setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab smartindent cindent
-autocmd filetype javascript             setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
-autocmd filetype json,yaml              setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
-autocmd BufNewFile,BufRead *.api        setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab
-autocmd BufNewFile,BufRead *.proto      setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
+augroup filetypedetect
+  au Filetype sh                     setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent expandtab
+  au Filetype go                     setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab
+  au FileType make,makefile,Makefile setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab
+  au FileType cpp                    setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab smartindent cindent
+  au FileType javascript             setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
+  au FileType json,yaml              setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
+  au BufNewFile,BufRead *.api        setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab
+  au BufNewFile,BufRead *.proto      setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
+augroup END
 
 "--------------------
 " Keymap
