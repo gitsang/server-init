@@ -1,10 +1,10 @@
 {
-    "suggest.noselect": true,
-    "coc.preferences.formatOnSaveFiletypes": ["css", "markdown", "go", "javascript", "vue"],
-    "vetur.trace.server": "verbose",
-    "vetur.ignoreProjectWarning": true,
-    "prettier.trailingComma": "es5",
-    "prettier.semi": false,
-    "prettier.singleQuote": true,
-    "#prettier.tabWidth": 4
+  "suggest.noselect": true,
+  "coc.preferences.formatOnSave": true,
+  "coc.preferences.formatOnType": true,
+  "vetur.trace.server": "verbose",
+  "vetur.ignoreProjectWarning": true,
+  "prettier.trailingComma": "es5",
+  "prettier.semi": false,
+  "prettier.singleQuote": true
 }
