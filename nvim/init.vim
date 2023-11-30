@@ -56,8 +56,8 @@ autocmd filetype make,makefile,Makefile setlocal shiftwidth=4 softtabstop=4 tabs
 autocmd filetype cpp                    setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab smartindent cindent
 autocmd filetype javascript             setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
 autocmd filetype json,yaml              setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
+autocmd filetype proto                  setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
 autocmd BufNewFile,BufRead *.api        setlocal shiftwidth=4 softtabstop=4 tabstop=4 autoindent noexpandtab
-autocmd BufNewFile,BufRead *.proto      setlocal shiftwidth=2 softtabstop=2 tabstop=2 autoindent expandtab
 
 "--------------------
 " Keymap
@@ -459,6 +459,10 @@ call plug#begin()
 
         Plug 'Exafunction/codeium.vim', { 'branch': 'main' }
             let g:codeium_no_map_tab = 1
+            imap <script><silent><nowait><expr> <C-g> codeium#Accept()
+            imap <C-;>   <Cmd>call codeium#CycleCompletions(1)<CR>
+            imap <C-,>   <Cmd>call codeium#CycleCompletions(-1)<CR>
+            imap <C-x>   <Cmd>call codeium#Clear()<CR>
 
     "[golang]"
 
