@@ -97,31 +97,25 @@ install_fzf() {
 # ========================= node ========================= #
 
 install_node() {
-    node_version=v18.18.2
+    node_version=v20.10.0
+    node_distro=linux-x64
 
-    # check version
-    if command -v node >/dev/null 2>&1; then
-        node_current_version=$(command node --version 2>/dev/null)
-    fi
-    if [[ ${node_current_version} == ${node_version} ]]; then
-        exit
-    fi
+    # install from source code
+    # node_source_tgz=node-${node_version}.tar.gz
+    # node_source_url=https://nodejs.org/dist/${node_version}/${node_source_tgz}
+    # node_dist=/usr/local/lib/nodejs
 
-    # install from pre-build
-    node_prebuild_txz=node-${node_version}-linux-x64.tar.xz
+    # install from prebuild
+    node_prebuild_txz=node-${node_version}.tar.xz
     node_prebuild_url=https://nodejs.org/dist/${node_version}/${node_prebuild_txz}
-    node_dist=/usr/local/lib
-    node_folder=node-${node_version}-linux-x64
+    node_dist=/usr/local/lib/nodejs
     pushd ~/.local/src
-        # download
-        rm -fr ${node_prebuild_txz}
-        curl -C - -LO ${node_prebuild_url}
-        # install
-        sudo rm -fr ${node_dist}/${node_folder}
-        sudo tar -C ${node_dist} -xvf ${node_prebuild_txz}
-        # link
-        sudo rm -fr ${node_dist}/nodejs
-        sudo ln -s ${node_dist}/node-${node_version}-linux-x64 ${node_dist}/nodejs
+        if [[ ! -f ${node_prebuild_txz} ]]; then
+            curl -LO ${node_prebuild_url}
+        fi
+        mkdir -p ${node_dist}
+        sudo rm -fr ${node_dist}/node-${node_version}-${node_distro}
+        sudo tar -Jxvf ${node_prebuild_txz} -C ${node_dist}
     popd
 }
 
