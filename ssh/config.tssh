@@ -1,0 +1,154 @@
+# vi: ft=sshconfig
+
+Host *
+    ServerAliveInterval 60
+    ServerAliveCountMax 30
+
+# --------------- cloud.c8g --------------- #
+
+Host *.cloud.c8g
+    Port 22
+    #!! GroupLabels c8g cloud
+
+Host cn-1.cloud.c8g
+    HostName 139.198.181.104
+    User root
+
+Host cn-2.cloud.c8g
+    HostName 119.23.223.238
+    User debian
+
+Host jp-1.cloud.c8g
+    HostName 52.193.10.239
+    User admin
+
+Host ru-1.cloud.c8g
+    HostName 194.87.69.144
+    User root
+
+Host us-1.cloud.c8g
+    HostName 107.173.80.187
+    User root
+
+# --------------- home.c8g --------------- #
+
+Host *.home.c8g
+    #!! GroupLabels c8g home
+
+Host pve.home.c8g
+    HostName frp.sang.ink
+    User root
+    Port 40022
+
+Host bastion.home.c8g
+    HostName frp.sang.ink
+    User root
+    Port 42001
+
+Host dev.home.c8g
+    HostName frp.sang.ink
+    User root
+    Port 42010
+
+# --------------- develop.yealink --------------- #
+
+Host *.develop.yealink
+    Port 22
+    #!! GroupLabels yealink develop
+
+Host ops-1.develop.yealink
+    HostName ops.yl.c8g.top
+    User root
+
+Host ops-2.develop.yealink
+    HostName 10.122.131.33
+    User ubuntu
+
+Host ops-3.develop.yealink
+    HostName 10.122.131.90
+    User debian
+
+# --------------- vuln.yealink --------------- #
+
+Host *.vuln.yealink
+    Port 22
+    User root
+    #!! GroupLabels yealink vuln
+
+Host scanners.vuln.yealink
+    HostName 10.122.131.105
+
+Host pikachu.vuln.yealink
+    HostName 10.122.131.92
+
+Host dvwa.vuln.yealink
+    HostName 10.122.131.71
+
+# --------------- dev.yealink --------------- #
+
+Host *.dev.yealink
+    Port 22
+    User root
+    #!! GroupLabels yealink dev
+
+Host worklink-1.dev.yealink
+    HostName 10.122.131.179
+
+Host worklink-2.dev.yealink
+    HostName 10.122.131.178
+
+# --------------- qa.yealink --------------- #
+
+Host *.qa.yealink
+    Port 22
+    User root
+    #!! GroupLabels yealink qa
+
+Host worklink-1.qa.yealink
+    HostName 10.122.131.111
+
+Host worklink-2.qa.yealink
+    HostName 10.122.131.112
+
+Host worklink-3.qa.yealink
+    HostName 10.122.131.113
+
+Host yops-1.qa.yealink
+    HostName 10.122.131.180
+
+Host yops-2.qa.yealink
+    HostName 10.122.131.181
+
+# --------------- staging.yealink --------------- #
+
+Host *.staging.yealink
+    Port 22
+    User root
+    #!! GroupLabels yealink staging
+
+Host worklink-1.staging.yealink
+    HostName 10.122.131.111
+
+Host worklink-2.staging.yealink
+    HostName 10.122.131.112
+
+Host worklink-3.staging.yealink
+    HostName 10.122.131.113
+
+Host yops-1.staging.yealink
+    HostName 10.122.131.180
+
+Host yops-2.staging.yealink
+    HostName 10.122.131.181
+
+Host data-1.staging.yealink
+    HostName 10.122.131.141
+
+Host data-2.staging.yealink
+    HostName 10.122.131.142
+
+Host data-3.staging.yealink
+    HostName 10.122.131.145
+
+Host nexus.staging.yealink
+    HostName 10.122.131.41
