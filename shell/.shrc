@@ -7,7 +7,7 @@ export REMOTE_IP=`who am i | sed 's/.*(\(.*\)).*/\1/g'`
 export DISPLAY=${REMOTE_IP}:0.0
 
 # path
-export PATH=$PATH:~/.local/bin:/usr/local/bin:.
+export PATH=$PATH:/sbin/:/bin:/usr/sbin:/usr/bin:~/.local/bin:/usr/local/bin:.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/:./lib:./libs:.
 
 # java
@@ -34,6 +34,7 @@ export GOPRIVATE='gitlab.home.c8g.top,gitcode.yealink.com'
 # node_version=v18.18.2
 # node_distro=linux-x64
 # export PATH=/usr/local/lib/nodejs/node-$node_version-$node_distro/bin:$PATH
+export PATH=$PATH:/usr/local/lib/nodejs/bin
 
 # libreoffice
 export LibreOffice_PATH=/opt/libreoffice7.1/program
@@ -392,34 +393,26 @@ proxy() {
     PROXY_HOST=localhost
     echo "proxy: $proxy"
     case "$1" in
-        "-l"|"--list")
-            echo PROXY_HOST=$PROXY_HOST
-            ;;
         "-c"|"--clean")
-            export proxy=
             export {HTTP,HTTPS,FTP}_PROXY=""
             export {http,https,ftp}_proxy=""
             ;;
         "-s"|"--set")
             case "$2" in
                 "vpn")
-                    export proxy=vpn
                     export {http,https,ftp}_proxy="http://${PROXY_HOST}:1080";;
                 "us")
-                    export proxy=us
                     export proxy="http://${PROXY_HOST}:1081";;
                 "ru")
-                    export proxy=us
                     export proxy="http://${PROXY_HOST}:1082";;
                 "cn")
-                    export proxy=cn
                     export proxy="http://${PROXY_HOST}:1083";;
                 "ho")
-                    export proxy=ho
                     export proxy="http://${PROXY_HOST}:1084";;
                 "co")
-                    export proxy=co
-                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1085";;
+                    export proxy="http://${PROXY_HOST}:1085";;
+                "clash")
+                    export proxy="http://${PROXY_HOST}:7890";;
                 *)
                     ;;
             esac
@@ -442,6 +435,7 @@ proxy() {
             echo "              cn         (1083)"
             echo "              ho         (1084)"
             echo "              co         (1085)"
+            echo "              clash      (7890)"
             ;;
     esac
 }
