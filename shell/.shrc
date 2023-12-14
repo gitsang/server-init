@@ -10,9 +10,6 @@ export DISPLAY=${REMOTE_IP}:0.0
 export PATH=$PATH:~/.local/bin:/usr/local/bin:.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/:./lib:./libs:.
 
-# node
-export PATH=$PATH:/usr/local/lib/nodejs/bin
-
 # java
 export JAVA_HOME=/usr/lib/jvm/jre-openjdk
 export JRE_HOME=${JAVA_HOME}/jre
@@ -32,6 +29,11 @@ export GONOPROXY='*.c8g.top,*.yealink.com'
 export GONOSUMDB='*.c8g.top,*.yealink.com'
 export GOPRIVATE='gitlab.home.c8g.top,gitcode.yealink.com'
 #export GOCACHE=off
+
+# node
+# node_version=v18.18.2
+# node_distro=linux-x64
+# export PATH=/usr/local/lib/nodejs/node-$node_version-$node_distro/bin:$PATH
 
 # libreoffice
 export LibreOffice_PATH=/opt/libreoffice7.1/program
@@ -72,8 +74,7 @@ gov() {
     echo "select go version: "
     read version
     if [ -f "${GOBIN}/${version}" ]; then
-        rm -f ${GOBIN}/go
-        ln -s ${GOBIN}/${version} ${GOBIN}/go
+        ln -rsf ${GOBIN}/${version} ${GOBIN}/go
     else
         echo "invalid version ${version}"
     fi
@@ -387,24 +388,17 @@ upload() {
 
 # proxy
 alias px='proxy'
-list_proxy() {
-    echo $http_proxy
-}
 proxy() {
     PROXY_HOST=localhost
+    echo "proxy: $proxy"
     case "$1" in
-        "--show")
-            echo ${proxy}
-            ;;
         "-l"|"--list")
             echo PROXY_HOST=$PROXY_HOST
-            list_proxy
             ;;
         "-c"|"--clean")
             export proxy=
             export {HTTP,HTTPS,FTP}_PROXY=""
             export {http,https,ftp}_proxy=""
-            list_proxy
             ;;
         "-s"|"--set")
             case "$2" in
@@ -413,28 +407,28 @@ proxy() {
                     export {http,https,ftp}_proxy="http://${PROXY_HOST}:1080";;
                 "us")
                     export proxy=us
-                    export http_proxy="http://${PROXY_HOST}:1081";;
+                    export proxy="http://${PROXY_HOST}:1081";;
                 "ru")
                     export proxy=us
-                    export http_proxy="http://${PROXY_HOST}:1082";;
+                    export proxy="http://${PROXY_HOST}:1082";;
                 "cn")
                     export proxy=cn
-                    export http_proxy="http://${PROXY_HOST}:1083";;
+                    export proxy="http://${PROXY_HOST}:1083";;
                 "ho")
                     export proxy=ho
-                    export http_proxy="http://${PROXY_HOST}:1084";;
+                    export proxy="http://${PROXY_HOST}:1084";;
                 "co")
                     export proxy=co
                     export {http,https,ftp}_proxy="http://${PROXY_HOST}:1085";;
                 *)
                     ;;
             esac
-            export https_proxy=$http_proxy
-            export ftp_proxy=$http_proxy
-            export HTTP_PROXY=$http_proxy
-            export HTTPS_PROXY=$http_proxy
-            export FTP_PROXY=$http_proxy
-            list_proxy
+            export http_proxy=$proxy
+            export HTTP_PROXY=$proxy
+            export https_proxy=$proxy
+            export HTTPS_PROXY=$proxy
+            export ftp_proxy=$proxy
+            export FTP_PROXY=$proxy
             ;;
         *)
             echo "help:"
@@ -448,7 +442,6 @@ proxy() {
             echo "              cn         (1083)"
             echo "              ho         (1084)"
             echo "              co         (1085)"
-            list_proxy
             ;;
     esac
 }
