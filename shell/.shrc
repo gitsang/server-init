@@ -391,7 +391,6 @@ upload() {
 alias px='proxy'
 proxy() {
     PROXY_HOST=localhost
-    echo "proxy: $proxy"
     case "$1" in
         "-c"|"--clean")
             export {HTTP,HTTPS,FTP}_PROXY=""
@@ -422,6 +421,7 @@ proxy() {
             export HTTPS_PROXY=$proxy
             export ftp_proxy=$proxy
             export FTP_PROXY=$proxy
+            export NO_PROXY="localhost,127.0.0.1,[::1]"
             ;;
         *)
             echo "help:"
@@ -438,4 +438,5 @@ proxy() {
             echo "              clash      (7890)"
             ;;
     esac
+    echo "proxy: $proxy"
 }
