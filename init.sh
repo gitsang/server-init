@@ -55,7 +55,7 @@ install_prerequisite() {
         sudo apt install -y asciidoc
         sudo apt install -y xmlto
         sudo apt install -y libcurl4-openssl-dev
-        sudo apt install -y ctags
+        sudo apt install -y universal-ctags
 
         sudo apt autoremove -y
     fi
@@ -97,7 +97,7 @@ install_fzf() {
 # ========================= node ========================= #
 
 install_node() {
-    node_version=v20.10.0
+    node_version=v20.11.1
     node_distro=linux-x64
 
     # install from source code
