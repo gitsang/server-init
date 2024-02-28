@@ -96,19 +96,14 @@ install_fzf() {
 
 # ========================= node ========================= #
 
+node_version=v20.11.1
+node_distro=linux-x64
+node_dist=/usr/local/lib/nodejs
+
 install_node() {
-    node_version=v20.11.1
-    node_distro=linux-x64
-
-    # install from source code
-    # node_source_tgz=node-${node_version}.tar.gz
-    # node_source_url=https://nodejs.org/dist/${node_version}/${node_source_tgz}
-    # node_dist=/usr/local/lib/nodejs
-
     # install from prebuild
-    node_prebuild_txz=node-${node_version}.tar.xz
+    node_prebuild_txz=node-${node_version}-${node_distro}.tar.xz
     node_prebuild_url=https://nodejs.org/dist/${node_version}/${node_prebuild_txz}
-    node_dist=/usr/local/lib/nodejs
     pushd ~/.local/src
         if [[ ! -f ${node_prebuild_txz} ]]; then
             curl -LO ${node_prebuild_url}
@@ -120,7 +115,7 @@ install_node() {
 }
 
 configure_node() {
-    keep_path=":/usr/local/lib/nodejs/bin"
+    keep_path=":${node_dist}/node-${node_version}-${node_distro}/bin"
     if ! sudo grep "secure_path" /etc/sudoers | grep -q "${keep_path}"; then
         sudo sed -i "s|secure_path=\"\([^\"].*\)\"|secure_path=\"\1${keep_path}\"|" /etc/sudoers
     fi
