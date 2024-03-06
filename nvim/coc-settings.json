@@ -1,10 +1,16 @@
 {
   "suggest.noselect": true,
-  "coc.preferences.formatOnSave": true,
-  "coc.preferences.formatOnType": true,
+  "[py][go][golang][rust][lua][c][js][markdown]": {
+    "coc.preferences.formatOnSave": true,
+    "coc.preferences.formatOnType": true
+  },
+  "go.goplsOptions": {
+    "completeUnimported": true
+  },
   "vetur.trace.server": "verbose",
   "vetur.ignoreProjectWarning": true,
   "prettier.trailingComma": "es5",
   "prettier.semi": false,
-  "prettier.singleQuote": true
+  "prettier.singleQuote": true,
+  "clangd.path": "~/.config/coc/extensions/coc-clangd-data/install/17.0.3/clangd_17.0.3/bin/clangd"
 }
