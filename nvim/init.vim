@@ -788,31 +788,8 @@ endfunction
 " Format
 "--------------------
 
-"snakecase: base_domain
-"camelcase: baseDomain
-"lispcase: base-domain
-"pascalcase: BaseDomain
-"titlecase: Base Domain
-
-" snake_case -> littleCamelCase
-:command -range SnakeCaseToLittleCamelCase <line1>,<line2> call SnakeCaseToLittleCamelCase()
-function SnakeCaseToLittleCamelCase() range
-    execute a:firstline ',' a:lastline 'substitute /_\(\w\)/\u\1/g'
-endfunction
-
-" CamelCase -> CAPITALIZED_SNAKE_CASE
-:command -range CamelCaseToCapitalizedSnakeCase <line1>,<line2> call CamelCaseToCapitalizedSnakeCase()
-function CamelCaseToCapitalizedSnakeCase() range
-    execute a:firstline ',' a:lastline 'substitute /\([A-Z][a-z]*\)/_\U\1/g'
-    execute a:firstline ',' a:lastline 'substitute /_\([A-Z_]*\)/\1/g'
-endfunction
-
-" CamelCase -> sentence
-:command -range CamelCaseToSentence <line1>,<line2> call CamelCaseToSentence()
-function CamelCaseToSentence() range
-    execute a:firstline ',' a:lastline 'substitute /\([A-Z][a-z]*\)/ \l\1/g'
-    execute a:firstline ',' a:lastline 'substitute / \([a-z][a-z ]*\)/\1/g'
-endfunction
+" converter
+source ~/.config/nvim/converter.vim
 
 " remove trailing spaces
 :command RemoveTrailingSpaces call RemoveTrailingSpaces()
@@ -828,6 +805,28 @@ function! Escape() range
     silent! execute a:firstline ',' a:lastline 'substitute /\\"/"/g'
     silent! execute a:firstline ',' a:lastline 'substitute /\\n/\r/g'
     silent! execute a:firstline ',' a:lastline 'substitute /\\t/\t/g'
+endfunction
+
+" remove control characters
+command! -nargs=0 -range -bar RemoveControlCharacters <line1>,<line2>call RemoveControlCharacters()
+function! RemoveControlCharacters() range
+    silent! execute a:firstline ',' a:lastline 'substitute /[[:cntrl:]]//g'
+endfunction
+
+" format ci log raw
+:command FormatCiLogRaw call FormatCiLogRaw()
+function! FormatCiLogRaw()
+    %s/section_.*:\([0-9]*\):.*//g
+    %s/\[[^mK]*[mK]//g
+    %s/[ \t]*$//
+    nohlsearch
+    execute "normal \<C-o>"
+endfunction
+
+" fix tab
+:command FixIndent call FixIndent()
+function! FixIndent()
+    execute "normal gg=G<C-o><C-o>zz"
 endfunction
 
 " base64 encode
@@ -855,12 +854,6 @@ function! Base64Decode() range
     exe "normal! " . a:firstline . "GV" . a:lastline . "G" . l:join
     \ . "0\<C-d>\<C-r>\<C-o>"
     \ . "=system('base64 --decode', @b)\<CR>\<BS>\<ESC>"
-endfunction
-
-" fix tab
-:command FixIndent call FixIndent()
-function! FixIndent()
-    execute "normal gg=G<C-o><C-o>zz"
 endfunction
 
 " unix format
