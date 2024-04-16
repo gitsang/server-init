@@ -1,4 +1,6 @@
 
+source ~/.config/nvim/config.vim
+
 "--------------------
 " Basic
 "--------------------
@@ -101,7 +103,7 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
 endif
 
 let hostname = substitute(system('hostname'), '\n', '', '')
-let main_ip = substitute(system('ifconfig eth0 | grep inet | grep -v inet6 | head -n1 | awk ''{print $2}\'''), '\n', '', '')
+let main_ip = substitute(system('ifconfig ' . net_interface . ' | grep inet | grep -v inet6 | head -n1 | awk ''{print $2}\'''), '\n', '', '')
 
 call plug#begin()
 
@@ -278,6 +280,7 @@ call plug#begin()
                 \ "coc-prettier",
                 \ "coc-highlight",
                 \ "coc-vimlsp",
+                \ "coc-snippets",
                 \ "coc-vetur"
                 \ ]
 
@@ -518,7 +521,7 @@ call plug#begin()
             let g:mkdp_open_to_the_world = 1
             let g:mkdp_open_ip = main_ip
             let g:mkdp_port = '7777'
-            let g:mkdp_browser = 'msedge'
+            let g:mkdp_browser = default_browser
             let g:mkdp_echo_preview_url = 1
             let g:mkdp_browserfunc = ''
             let g:mkdp_preview_options = {
@@ -601,6 +604,7 @@ function MouseToggle()
     echom "mouse_mode:" &mouse
 endfunction
 
+" read command output
 :command -nargs=1 -complete=command ReadCommand redir @">|exe "<args>"|:redir END<CR>
 
 "--------------------
