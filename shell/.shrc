@@ -61,26 +61,6 @@ fuck() {
     fi
 }
 
-# nvim diff
-dirdiff() {
-    DIR1=$(printf '%q' "$1"); shift
-    DIR2=$(printf '%q' "$1"); shift
-    nvim $@ -c "DirDiff $DIR1 $DIR2"
-}
-
-# golang
-gov() {
-    echo "current go version is: " $(go version)
-    echo "optional go version is: " $(ls ~/sdk)
-    echo "select go version: "
-    read version
-    if [ -f "${GOBIN}/${version}" ]; then
-        ln -rsf ${GOBIN}/${version} ${GOBIN}/go
-    else
-        echo "invalid version ${version}"
-    fi
-}
-
 # list
 alias l='ls --color'
 alias ll='ls -la --color'
@@ -110,6 +90,16 @@ alias ......='cd ../../../../../'
 alias ..6='cd ../../../../../../'
 alias .......='cd ../../../../../../'
 
+# tail
+alias tailf='tail -f'
+
+# nvim diff
+dirdiff() {
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    nvim $@ -c "DirDiff $DIR1 $DIR2"
+}
+
 # network
 wip() {
     echo -e "\n\e[32m=====cip=====\e[0m"
@@ -124,16 +114,18 @@ wip() {
     echo -e "\n\e[32m=====v4=====\e[0m"
     curl -4 ifconfig.co
 }
-alias ports='netstat -ntlp | sort'
 
-# other
-alias pss='ps auxf --sort=cmd | grep -v "\[*\]$" | grep -v -E "bash|ps -ef|grep"'
-alias eplib='export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib && echo $LD_LIBRARY_PATH'
-alias tailf='tail -f'
-alias space='df -h | grep -vE "overlay|tmpfs|shm|udev|efi|loop"'
-fixmod() {
-    chmod 0644 `find ./ -type f`
-    chmod 0755 `find ./ -type d`
+# golang
+gov() {
+    echo "current go version is: " $(go version)
+    echo "optional go version is: " $(ls ~/sdk)
+    echo "select go version: "
+    read version
+    if [ -f "${GOBIN}/${version}" ]; then
+        ln -rsf ${GOBIN}/${version} ${GOBIN}/go
+    else
+        echo "invalid version ${version}"
+    fi
 }
 
 # docker
@@ -151,10 +143,6 @@ alias pps='podman ps --format "table {{.Image}}\t{{.Networks}}\t{{.Status}}\t{{.
 # vim
 alias vi='nvim'
 alias nv='nvim'
-
-# antlr
-alias antlr4='java -Xmx500M -cp "/usr/local/lib/antlr-4.10.1-complete.jar:$CLASSPATH" org.antlr.v4.Tool'
-alias grun='java -Xmx500M -cp "/usr/local/lib/antlr-4.10.1-complete.jar:$CLASSPATH" org.antlr.v4.gui.TestRig'
 
 # cache
 dropcaches() {
@@ -225,10 +213,6 @@ gtps() {
     git tag ${TAG}
     git push origin ${TAG}
 }
-gpsu() {
-    BRANCH=$(git branch | grep "*" | awk '{print $2}')
-    git push -u origin ${BRANCH}
-}
 gau() {
     git add --all .
 
@@ -255,64 +239,11 @@ ${RENAMED}
     git push origin ${BRANCH}
     git status
 }
-gsubm() {
-    USER=chensx
-    DATE=`date '+%Y%m%d_%H%M'`
-    SRC_BRANCH=`git branch | grep "*" | awk '{print $2}'`
-    SUBMIT_BRANCH=${1:-${SRC_BRANCH}}
-    DST_BRANCH=${SUBMIT_BRANCH}_submit_${DATE}_${USER}
-    while true; do
-        echo -e "submit to branch \e[31m${SUBMIT_BRANCH}\e[0m_submit_${DATE}_\e[31m${USER}\e[0m, \c"
-        read -r -p "continue? (Default:Y) [Y/n] " input
-        case $input in
-            [yY][eE][sS]|[yY]|"")
-                git push origin ${SRC_BRANCH}:${DST_BRANCH}
-                break
-                ;;
-            [nN][oO]|[nN])
-                break
-                ;;
-            *)
-                echo "Invalid input..." ;;
-        esac
-    done
-}
-gpst() {
-    TYPE=${1}
-    SUBJ=${2}
-    USER=chensx
-    SRC_BRANCH=`git branch | grep "*" | awk '{print $2}'`
-    DST_BRANCH=${TYPE}-${SUBJ}-${USER}
-    while true; do
-        echo -e "submit to branch \e[31m${DST_BRANCH}\e[0m, \c"
-        read -r -p "continue? (Default:Y) [Y/n] " input
-        case $input in
-            [yY][eE][sS]|[yY]|"")
-                git push origin ${SRC_BRANCH}:${DST_BRANCH}
-                break
-                ;;
-            [nN][oO]|[nN])
-                break
-                ;;
-            *)
-                echo "Invalid input..." ;;
-        esac
-    done
-}
 grb() {
     if [ ${#1} -gt 3 ]; then
         git rebase -i ${1}
     else
         git rebase -i HEAD~${1}
-    fi
-}
-grst() {
-    if [ ${1} == "-h" ]; then
-        git reset --hard ${2}
-    elif [ ${1} == "-s" ]; then
-        git reset --soft ${2}
-    else
-        git reset $@
     fi
 }
 
@@ -383,7 +314,7 @@ trash() {
 
 # upload
 upload() {
-    URL=https://transfer.cn.sang.ink
+    URL=https://send.cn.c8g.top
     curl -T $1 ${URL}/$1
 }
 
@@ -393,34 +324,16 @@ proxy() {
     PROXY_HOST=localhost
     case "$1" in
         "-c"|"--clean")
-            export {HTTP,HTTPS,FTP}_PROXY=""
-            export {http,https,ftp}_proxy=""
+            export {HTTP,http,HTTPS,https,FTP,ftp}_{PROXY,proxy}=""
             ;;
         "-s"|"--set")
             case "$2" in
-                "vpn")
-                    export {http,https,ftp}_proxy="http://${PROXY_HOST}:1080";;
-                "us")
-                    export proxy="http://${PROXY_HOST}:1081";;
-                "ru")
-                    export proxy="http://${PROXY_HOST}:1082";;
-                "cn")
-                    export proxy="http://${PROXY_HOST}:1083";;
-                "ho")
-                    export proxy="http://${PROXY_HOST}:1084";;
-                "co")
-                    export proxy="http://${PROXY_HOST}:1085";;
                 "clash")
-                    export proxy="http://${PROXY_HOST}:7890";;
+                    export {HTTP,http,HTTPS,https,FTP,ftp}_{PROXY,proxy}="http://${PROXY_HOST}:7890"
+                    ;;
                 *)
                     ;;
             esac
-            export http_proxy=$proxy
-            export HTTP_PROXY=$proxy
-            export https_proxy=$proxy
-            export HTTPS_PROXY=$proxy
-            export ftp_proxy=$proxy
-            export FTP_PROXY=$proxy
             export NO_PROXY="localhost,127.0.0.1,[::1]"
             ;;
         *)
@@ -429,14 +342,15 @@ proxy() {
             echo "    -l, --list           list current proxy"
             echo "    -c, --clean          clean proxy"
             echo "    -s, --set [location] set proxy"
-            echo "              vpn        (1080)"
-            echo "              us         (1081)"
-            echo "              ru         (1082)"
-            echo "              cn         (1083)"
-            echo "              ho         (1084)"
-            echo "              co         (1085)"
             echo "              clash      (7890)"
             ;;
     esac
-    echo "proxy: $proxy"
+
+    echo ""
+    echo "http_proxy:  $http_proxy"
+    echo "https_proxy: $https_proxy"
+    echo "ftp_proxy:   $ftp_proxy"
+    echo "HTTP_PROXY:  $HTTP_PROXY"
+    echo "HTTPS_PROXY: $HTTPS_PROXY"
+    echo "FTP_PROXY:   $FTP_PROXY"
 }
