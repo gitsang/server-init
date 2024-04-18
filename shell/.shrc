@@ -106,13 +106,16 @@ wip() {
     curl cip.cc
 
     echo -e "\n\e[32m=====default=====\e[0m"
-    curl ifconfig.co
+    ip=$(curl -s ifconfig.co)
+    curl -s cip.cc/$ip
 
     echo -e "\n\e[32m=====v6=====\e[0m"
-    curl -6 ifconfig.co
+    ip=$(curl -s -6 ifconfig.co)
+    curl -s cip.cc/$ip
 
     echo -e "\n\e[32m=====v4=====\e[0m"
-    curl -4 ifconfig.co
+    ip=$(curl -s -4 ifconfig.co)
+    curl -s cip.cc/$ip
 }
 
 # golang
