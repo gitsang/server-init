@@ -210,7 +210,7 @@ call plug#begin()
 
     "[tagbar]"
 
-        Plug 'majutsushi/tagbar', { 'do': 'apt install ctags -y', 'on': 'TagbarToggle' }
+        Plug 'majutsushi/tagbar', { 'on': 'TagbarToggle' }
             let g:tagbar_type_go = {
                     \ 'ctagstype' : 'go',
                     \ 'kinds'     : [
