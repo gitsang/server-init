@@ -1,2 +1,2 @@
-let net_interface = "enp1s0"
-let default_browser = "firefox"
+let net_interface = "eth0"
+let default_browser = ""
