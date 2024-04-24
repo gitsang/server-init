@@ -1,4 +1,6 @@
 {
+  "suggest.noselect": true,
+  "suggest.enablePreselect": false,
   "[py][go][golang][rust][lua][c][js][markdown]": {
     "coc.preferences.formatOnSave": true,
     "coc.preferences.formatOnType": true
