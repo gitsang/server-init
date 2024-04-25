@@ -271,6 +271,7 @@ call plug#begin()
             " coc-extensions
             let g:coc_global_extensions = [
                 \ "coc-marketplace",
+                \ "coc-explorer",
                 \ "coc-sh",
                 \ "coc-sql",
                 \ "coc-json",
@@ -288,6 +289,19 @@ call plug#begin()
 
             " Coc restart
             nmap <leader>rr :CocRestart<CR>
+
+            " coc-explorer
+            " Use <Space-E> to open explorer
+            noremap <space>e :CocCommand explorer<CR>
+            " Close Coc-explorer if it is the only window
+            autocmd BufEnter * if (&ft == 'coc-explorer' && winnr("$") == 1) | q | endif
+
+            " coc-go
+            nmap <silent> gp :CocCommand editor.action.organizeImport<CR>
+            nmap <silent> gm :CocCommand go.gopls.tidy<CR>
+
+            " Open Command list with Ctrl Shift P
+            noremap <C-P> :CocList commands<CR>
 
             " Use tab for trigger completion with characters ahead and navigate
             " NOTE: There's always complete item selected by default, you may want to enable
@@ -420,21 +434,21 @@ call plug#begin()
 
             " Mappings for CoCList
             " Show all diagnostics
-            nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+            " nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
             " Manage extensions
-            nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+            " nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
             " Show commands
-            nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+            " nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
             " Find symbol of current document
-            nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+            " nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
             " Search workspace symbols
-            nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+            " nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
             " Do default action for next item
-            nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+            " nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
             " Do default action for previous item
-            nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+            " nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
             " Resume latest coc list
-            nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+            " nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
     "[linter]"
 
@@ -618,10 +632,6 @@ endfunction
 "--------------------
 " Golang
 "--------------------
-
-" coc-go
-nmap <silent> gp :CocCommand editor.action.organizeImport<CR>
-nmap <silent> gm :CocCommand go.gopls.tidy<CR>
 
 :command -nargs=* GoTest call GoTest(<f-args>)
 function! GoTest(...)
