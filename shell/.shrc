@@ -6,6 +6,10 @@
 export REMOTE_IP=`who am i | sed 's/.*(\(.*\)).*/\1/g'`
 export DISPLAY=${REMOTE_IP}:0.0
 
+# shell
+export LESSCHARSET=utf-8
+#export LANG=en_US.UTF-8
+
 # path
 export PATH=$PATH:/sbin/:/bin:/usr/sbin:/usr/bin:~/.local/bin:/usr/local/bin:.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/:./lib:./libs:.
