@@ -3,7 +3,7 @@
 # =============== aliases =============== #
 
 source ~/.shrc
-alias sss='source ~/.shrc'
+alias sss='source ~/.zshrc'
 
 # =============== history =============== #
 
@@ -26,26 +26,7 @@ setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording en
 setopt HIST_VERIFY               # Don't execute immediately upon history expansion.
 setopt HIST_BEEP                 # Beep when accessing nonexistent history.
 
-# =============== fzf =============== #
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# =============== Plugin =============== #
-
-plugins=(docker docker-compose)
-fpath=(~/.zsh/completion $fpath)
-autoload -Uz compinit && compinit -i
-
-# git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/plugins/zsh-autosuggestions
-source ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/plugins/zsh-syntax-highlighting
-source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# curl -fLo ~/.zsh/completion/_docker https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
-# curl -fLo ~/.zsh/completion/_docker-machine https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine
-
-# =============== Prompt Option =============== #
+# =============== prompt option =============== #
 
 # color
 autoload -U colors && colors
@@ -61,11 +42,40 @@ prompt_line() {
 PROMPT_RET='$(pfg=16 pbg=223 pnc=123 prompt_line "%?")'
 PROMPT_USER='$(pfg=16 pbg=123 pnc=220 prompt_line "%n")'
 PROMPT_HOSTNAME='$(pfg=16 pbg=220 pnc=111 prompt_line "%M")'
-PROMPT_DATE='$(pfg=16 pbg=111 pnc=223 prompt_line $(date "+%Y-%m-%d %H:%M:%S %Z"))'
+PROMPT_DATE='$(pfg=16 pbg=111 pnc=35 prompt_line $(date "+%Y-%m-%d"))'
+PROMPT_TIME='$(pfg=16 pbg=35 pnc=223 prompt_line $(date "+%H:%M:%S %Z"))'
 PROMPT_WORKDIR='$(pfg=16 pbg=223 pnc=38 prompt_line "➤  %~")'
 PROMPT_GO_VERSION='$(pfg=16 pbg=38 pnc=68 prompt_line $(go version | cut -d " " -f 3))'
 PROMPT_GIT_BRANCH='$(pfg=16 pbg=68 pnc=16 prompt_line $(git branch --show-current 2&> /dev/null | xargs -I branch echo " branch"))'
-PROMPT="%B${PROMPT_NEWLINE}${PROMPT_RET}${PROMPT_USER}${PROMPT_HOSTNAME}${PROMPT_DATE}${PROMPT_WORKDIR}${PROMPT_GO_VERSION}${PROMPT_GIT_BRANCH}%b${PROMPT_NEWLINE} %# "
+PROMPT="%B${PROMPT_NEWLINE}${PROMPT_RET}${PROMPT_USER}${PROMPT_HOSTNAME}${PROMPT_DATE}${PROMPT_TIME}${PROMPT_WORKDIR}${PROMPT_GO_VERSION}${PROMPT_GIT_BRANCH}%b${PROMPT_NEWLINE} %# "
+
+# =============== fzf =============== #
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# =============== plugin =============== #
+
+if [[ ${plugin_loaded} != "true" ]]; then
+    echo "loading plugin..."
+
+    plugins=(docker docker-compose)
+    fpath=(~/.zsh/completion $fpath)
+    autoload -Uz compinit && compinit -i
+
+    if [[ ! -d ~/.zsh/plugins/zsh-autosuggestions ]]; then
+        git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/plugins/zsh-autosuggestions
+    fi
+    source ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+    if [[ ! -d ~/.zsh/plugins/zsh-syntax-highlighting ]]; then
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/plugins/zsh-syntax-highlighting
+    fi
+    source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+    plugin_loaded="true"
+fi
+
+# =============== window title =============== #
 
 #DISABLE_AUTO_TITLE="true"
 set-window-title() {
