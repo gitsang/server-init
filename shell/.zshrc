@@ -51,19 +51,31 @@ source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 autoload -U colors && colors
 
 # prompt
+prompt_line() {
+    pfg=${pfg:-16}
+    pbg=${pbg:-68}
+    pnc=${pnc:-16}
+    text=${@}
+    echo "%K{${pbg}}%F{${pfg}} ${text} %f%k%K{${pnc}}%F{${pbg}}${PROMPT_TRIANGLE}%f%k"
+}
 setopt prompt_subst
-NEWLINE=$'\n'
-PROMPT_HOSTNAME='%F{123}%n%F{220}@%M%f'
-PROMPT_DATE='%F{111}⏱️ $(date "+%Y-%m-%d %H:%M:%S %Z")%f'
-PROMPT_WORKDIR='%F{yellow}➤  %~ %f'
-PROMPT_GITBRANCH='%F{cyan}$(git branch --show-current 2&> /dev/null | xargs -I branch echo " branch")%f'
-PROMPT_CMDLINE='${NEWLINE} %# '
-PROMPT="%B${NEWLINE}${PROMPT_HOSTNAME} ${PROMPT_DATE} ${PROMPT_WORKDIR} ${PROMPT_GITBRANCH}%b ${PROMPT_CMDLINE}"
-
-PROMPT_ENV_HTTP_PROXY='[PROXY: ${http_proxy}]'
-PROMPT_ENV="%F{245}${PROMPT_ENV_HTTP_PROXY}%f"
-PROMPT_RET='[%{$fg_bold[yellow]%}%?%{$reset_color%}]'
-RPROMPT="${PROMPT_ENV} ${PROMPT_RET}"
+PROMPT_TRIANGLE=$'\uE0B0'
+PROMPT_NEWLINE=$'\n'
+PROMPT_RET='%?'
+PROMPT_RET=$(pfg=16 pbg=223 pnc=123 prompt_line $PROMPT_RET)
+PROMPT_USER='%n'
+PROMPT_USER=$(pfg=16 pbg=123 pnc=220 prompt_line $PROMPT_USER)
+PROMPT_HOSTNAME='%M'
+PROMPT_HOSTNAME=$(pfg=16 pbg=220 pnc=111 prompt_line $PROMPT_HOSTNAME)
+PROMPT_DATE=$(date "+%Y-%m-%d %H:%M:%S %Z")
+PROMPT_DATE=$(pfg=16 pbg=111 pnc=223 prompt_line $PROMPT_DATE)
+PROMPT_WORKDIR='➤  %~ '
+PROMPT_WORKDIR=$(pfg=16 pbg=223 pnc=38 prompt_line $PROMPT_WORKDIR)
+PROMPT_GO_VERSION=$(go version | cut -d " " -f 3)
+PROMPT_GO_VERSION=$(pfg=16 pbg=38 pnc=68 prompt_line $PROMPT_GO_VERSION)
+PROMPT_GIT_BRANCH=$(git branch --show-current 2&> /dev/null | xargs -I branch echo " branch")
+PROMPT_GIT_BRANCH=$(pfg=16 pbg=68 pnc=16 prompt_line $PROMPT_GIT_BRANCH)
+PROMPT="%B${PROMPT_NEWLINE}${PROMPT_RET}${PROMPT_USER}${PROMPT_HOSTNAME}${PROMPT_DATE}${PROMPT_WORKDIR}${PROMPT_GO_VERSION}${PROMPT_GIT_BRANCH}%b${PROMPT_NEWLINE} %# "
 
 #DISABLE_AUTO_TITLE="true"
 set-window-title() {
