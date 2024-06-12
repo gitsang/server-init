@@ -32,6 +32,7 @@ export GOPATH=~/.go
 export GOBIN=$GOPATH/bin
 export GOPROXY=https://goproxy.cn
 export GO111MODULE=on
+export CGO_ENABLED=0
 export PATH=$PATH:$GOBIN:$GOROOT/bin
 export GONOPROXY='*.c8g.top,*.yealink.com'
 export GONOSUMDB='*.c8g.top,*.yealink.com'
@@ -128,15 +129,42 @@ wip() {
 
 # golang
 gov() {
-    echo "current go version is: " $(go version)
-    echo "optional go version is: " $(ls ~/sdk)
-    echo "select go version: "
-    read version
-    if [ -f "${GOBIN}/${version}" ]; then
-        ln -rsf ${GOBIN}/${version} ${GOBIN}/go
+    local remote_versions
+    local local_versions
+    local optional_versions
+
+    while getopts "r" opt; do
+        case ${opt} in
+            r)
+                remote_versions=$(curl -sL https://golang.org/dl/ | grep -o 'go[0-9.]*\.linux-amd64.tar.gz' | sed 's/\.linux-amd64.tar.gz//g' | uniq)
+                ;;
+            *)
+                echo "Invalid option: -$OPTARG" >&2
+                ;;
+        esac
+    done
+
+    shift $((OPTIND -1))
+
+    local_versions=($(ls ${GOBIN} | grep -E 'go[0-9]+\.[0-9]+\.[0-9]+' | sort -r))
+    if [ -n "$remote_versions" ]; then
+        optional_versions=(${remote_versions})
     else
-        echo "invalid version ${version}"
+        optional_versions=(${local_versions})
     fi
+
+    selected_version=$(printf "%s\n" "${optional_versions[@]}" | fzf --height 40% --layout reverse)
+    if [ -n "$selected_version" ]; then
+        echo "Selected Go version ${selected_version}"
+        if [ ! -f "${GOBIN}/${selected_version}" ]; then
+            go install "golang.org/dl/${selected_version}@latest"
+        fi
+        ln -rsf "${GOBIN}/${selected_version}" "${GOBIN}/go"
+        if [ ! -d "~/sdk/${selected_version}" ]; then
+            go download
+        fi
+    fi
+    go version
 }
 
 # docker
@@ -168,6 +196,11 @@ dropcaches() {
 alias j='jobs'
 kj() {
     kill -9 %$@
+}
+
+# codec
+b64() {
+    echo -n $1 | base64 -d
 }
 
 # tmpfile
@@ -325,8 +358,17 @@ trash() {
 
 # upload
 upload() {
-    URL=https://send.cn.c8g.top
-    curl -T $1 ${URL}/$1
+    upload_url=https://send.cn.c8g.top
+    temp_file_path=/tmp
+    file_path=${1}
+    file_name=$(basename ${file_path})
+    if [ -d "${file_path}" ]; then
+        tgz_file_path=${temp_file_path}/${file_name}.tar.gz
+        tar -zcvf ${tgz_file_path} -C ${file_path} .
+        curl -T ${tgz_file_path} ${upload_url}/${file_name}.tar.gz
+    elif [ -f "${file_path}" ]; then
+        curl -T ${file_path} ${upload_url}/${file_name}
+    fi
 }
 
 # proxy

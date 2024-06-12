@@ -839,6 +839,12 @@ function! RemoveControlCharacters() range
     silent! execute a:firstline ',' a:lastline 'substitute /[[:cntrl:]]//g'
 endfunction
 
+" remove color
+command! -nargs=0 -range -bar RemoveColor <line1>,<line2>call RemoveColor()
+function! RemoveColor() range
+    silent! execute a:firstline ',' a:lastline 'substitute /\[[^mK]*[mK]//g'
+endfunction
+
 " format ci log raw
 :command FormatCiLogRaw call FormatCiLogRaw()
 function! FormatCiLogRaw()
