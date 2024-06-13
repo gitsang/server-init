@@ -384,6 +384,9 @@ proxy() {
                 "clash")
                     export {HTTP,http,HTTPS,https,FTP,ftp}_{PROXY,proxy}="http://${PROXY_HOST}:7890"
                     ;;
+                "home")
+                    export {HTTP,http,HTTPS,https,FTP,ftp}_{PROXY,proxy}="http://${PROXY_HOST}:7490"
+                    ;;
                 *)
                     ;;
             esac
@@ -396,6 +399,7 @@ proxy() {
             echo "    -c, --clean          clean proxy"
             echo "    -s, --set [location] set proxy"
             echo "              clash      (7890)"
+            echo "              home       (7490)"
             ;;
     esac
 
