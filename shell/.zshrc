@@ -39,15 +39,24 @@ prompt_line() {
     pfg=${pfg:-16} pbg=${pbg:-68} pnc=${pnc:-16}
     echo "%K{${pbg}}%F{${pfg}} ${@} %f%k%K{${pnc}}%F{${pbg}}${PROMPT_TRIANGLE}%f%k"
 }
-PROMPT_RET='$(pfg=16 pbg=223 pnc=123 prompt_line "%?")'
-PROMPT_USER='$(pfg=16 pbg=123 pnc=220 prompt_line "%n")'
-PROMPT_HOSTNAME='$(pfg=16 pbg=220 pnc=111 prompt_line "%M")'
-PROMPT_DATE='$(pfg=16 pbg=111 pnc=35 prompt_line $(date "+%Y-%m-%d"))'
-PROMPT_TIME='$(pfg=16 pbg=35 pnc=223 prompt_line $(date "+%H:%M:%S %Z"))'
-PROMPT_WORKDIR='$(pfg=16 pbg=223 pnc=38 prompt_line "➤  %~")'
+prompt_ret() {
+    ret=$? pfg=16 pbg=223 pnc=114
+    if [[ $ret -ne 0 ]]; then
+        pfg=196
+    fi
+    echo $(prompt_line "%?")
+}
+PROMPT_RET='$(prompt_ret)'
+PROMPT_USER='$(pfg=16 pbg=114 pnc=142 prompt_line "%n")'
+PROMPT_HOSTNAME='$(pfg=16 pbg=142 pnc=42 prompt_line "%M")'
+PROMPT_DATE='$(pfg=16 pbg=42 pnc=36 prompt_line $(date "+%Y-%m-%d"))'
+PROMPT_TIME='$(pfg=16 pbg=36 pnc=29 prompt_line $(date "+%H:%M:%S"))'
+PROMPT_TZ='$(pfg=16 pbg=29 pnc=223 prompt_line $(date "+%Z"))'
+PROMPT_WORKDIR='$(pfg=16 pbg=223 pnc=38 prompt_line "%~")'
 PROMPT_GO_VERSION='$(pfg=16 pbg=38 pnc=68 prompt_line $(go version | cut -d " " -f 3))'
 PROMPT_GIT_BRANCH='$(pfg=16 pbg=68 pnc=16 prompt_line $(git branch --show-current 2&> /dev/null | xargs -I branch echo " branch"))'
-PROMPT="%B${PROMPT_NEWLINE}${PROMPT_RET}${PROMPT_USER}${PROMPT_HOSTNAME}${PROMPT_DATE}${PROMPT_TIME}${PROMPT_WORKDIR}${PROMPT_GO_VERSION}${PROMPT_GIT_BRANCH}%b${PROMPT_NEWLINE} %# "
+PROMPT_CMDLINE='%F{117} ➤  %f'
+PROMPT="%B${PROMPT_NEWLINE}${PROMPT_RET}${PROMPT_USER}${PROMPT_HOSTNAME}${PROMPT_DATE}${PROMPT_TIME}${PROMPT_TZ}${PROMPT_WORKDIR}${PROMPT_GO_VERSION}${PROMPT_GIT_BRANCH}%b${PROMPT_NEWLINE}${PROMPT_CMDLINE}"
 
 # =============== fzf =============== #
 
