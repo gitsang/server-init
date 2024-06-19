@@ -215,8 +215,25 @@ b64() {
     echo -n $1 | base64 -d
 }
 
-# tmpfile
+# explore
+explore() {
+    server_net_interface=enp1s0
+    server_ip=$(ip a | grep ${server_net_interface} | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -n1)
+    server_port=8080
+    data_path=$(realpath ${1})
+    echo "serving ${data_path} on http://${server_ip}:${server_port}"
+    docker run -it --rm \
+        --user $(id -u):$(id -g) \
+        -p ${server_port}:8080 \
+        -v ${data_path}:/data \
+        hurlenko/filebrowser \
+            --noauth \
+            --root=/data \
+            --address=0.0.0.0 \
+            --database=/config/filebrowser.db
+}
 
+# tmpfile
 tmp() {
     TMPROOT=~/.tmp
     DATE=$(date +%s)
@@ -251,8 +268,6 @@ mk() {
 # git
 alias gs='git status'
 alias gb='git branch'
-alias gd='git diff'
-alias gdt='git difftool'
 alias gl='git lg'
 alias glg='git log'
 alias gls='git log --stat'
@@ -264,36 +279,61 @@ alias gps='git push'
 alias gpl='git pull'
 alias gf='git fetch'
 alias gt='git for-each-ref --sort=creatordate --format "%(creatordate): %(refname)" refs/tags'
+gd() {
+    if [[ $# -eq 0 ]]; then
+        git diff
+    elif [[ $# -eq 1 ]]; then
+        if [[ $1 =~ '^[0-9a-z]{7}$' ]]; then
+            git diff $1~1 $1
+        else
+            git diff $@
+        fi
+    else
+        git diff $@
+    fi
+}
+gdt() {
+    if [ $# -eq 0 ]; then
+        git difftool
+    elif [ $# -eq 1 ]; then
+        git difftool $1~1 $1
+    else
+        git difftool $@
+    fi
+}
 gtps() {
     TAG=${1}
     git tag ${TAG}
     git push origin ${TAG}
 }
 gau() {
-    git add --all .
-
-    BRANCH=$(git branch | grep "*" | awk '{print $2}')
-    MODIFIED=$(git status | grep -E "modified" | awk '{print $NF}')
-    DELETED=$(git status | grep -E "deleted" | awk '{print $NF}')
-    NEW=$(git status | grep -E "new file" | awk '{print $NF}')
-    RENAMED=$(git status | grep -E "renamed" | awk '{print $NF}')
-
-    git commit -m "update(auto): auto commit
-
-MODIFIED:
-${MODIFIED}
-
-DELETED:
-${DELETED}
-
-NEW:
-${NEW}
-
-RENAMED:
-${RENAMED}
-    "
-    git push origin ${BRANCH}
-    git status
+    pushd $(git rev-parse --show-toplevel)
+        git add --all .
+        branch=$(git branch | grep "*" | awk '{print $NF}')
+        modified=$(git status | grep -E "modified" | awk '{print "\t" $NF}')
+        deleted=$(git status | grep -E "deleted" | awk '{print "\t" $NF}')
+        new_file=$(git status | grep -E "new file" | awk '{print "\t" $NF}')
+        renamed=$(git status | grep -E "renamed" | awk '{print "\t" $NF}')
+        commit_message="update(auto): auto commit\n\n"
+        if [ -n "$modified" ]; then
+            commit_message+="MODIFIED:\n${modified}\n\n"
+        fi
+        if [ -n "$deleted" ]; then
+            commit_message+="DELETED:\n${deleted}\n\n"
+        fi
+        if [ -n "$new_file" ]; then
+            commit_message+="NEW:\n${new_file}\n\n"
+        fi
+        if [ -n "$renamed" ]; then
+            commit_message+="RENAMED:\n${renamed}\n\n"
+        fi
+        if [ -n "$modified" ] || [ -n "$deleted" ] || [ -n "$new_file" ] || [ -n "$renamed" ]; then
+            echo -e "$commit_message" | git commit -F -
+            git push origin ${branch}
+        else
+            echo "No changes to commit."
+        fi
+    popd
 }
 grb() {
     if [ ${#1} -gt 3 ]; then
