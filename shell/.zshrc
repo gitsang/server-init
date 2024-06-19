@@ -1,5 +1,5 @@
 #!/bin/zsh
-#
+
 # =============== aliases =============== #
 
 source ~/.shrc
@@ -33,30 +33,46 @@ autoload -U colors && colors
 
 # prompt
 setopt prompt_subst
-PROMPT_TRIANGLE=$'\uE0B0'
-PROMPT_NEWLINE=$'\n'
-prompt_line() {
-    pfg=${pfg:-16} pbg=${pbg:-68} pnc=${pnc:-16}
-    echo "%K{${pbg}}%F{${pfg}} ${@} %f%k%K{${pnc}}%F{${pbg}}${PROMPT_TRIANGLE}%f%k"
+prompt_print() {
+    prompt_triangle=$'\uE0B0'
+    prompt_bg=${prompt_bg:-223}
+    prompt_fg=${prompt_fg:-16}
+    prompt_next_bg=${prompt_next_bg:-16}
+    prompt_data=${prompt_data}
+    echo -n "%K{${prompt_bg}}%F{${prompt_fg}} ${prompt_data} %f%k%K{${prompt_next_bg}}%F{${prompt_bg}}${prompt_triangle}%f%k"
 }
-prompt_ret() {
-    ret=$? pfg=16 pbg=223 pnc=114
+prompt() {
+    ret=$?
+    prompt_configs=()
     if [[ $ret -ne 0 ]]; then
-        pfg=196
+        prompt_configs+=("${ret}" "16" "%?")
+    else
+        prompt_configs+=("223" "16" "%?")
     fi
-    echo $(prompt_line "%?")
+    prompt_configs+=("114" "16" "%n")
+    prompt_configs+=("142" "16" "%M")
+    prompt_configs+=("42"  "16" "$(date "+%Y-%m-%d")")
+    prompt_configs+=("36"  "16" "$(date "+%H:%M:%S %Z")")
+    prompt_configs+=("29"  "16" "$(date "+%Z")")
+    prompt_configs+=("223" "16" "%~")
+    prompt_configs+=("38"  "16" "$(go version | cut -d " " -f 3)")
+    prompt_configs+=("68"  "16" "$(git branch --show-current 2&> /dev/null | xargs -I branch echo " branch")")
+    echo "%B"
+    for (( i=1; i<${#prompt_configs[@]}; i+=3 )); do
+        prompt_bg=${prompt_configs[i]}
+        prompt_fg=${prompt_configs[i+1]}
+        prompt_data=${prompt_configs[i+2]}
+        if [ $i -eq $((${#prompt_configs[@]}-3)) ]; then
+            prompt_next_bg=16
+        else
+            prompt_next_bg=${prompt_configs[i+3]}
+        fi
+        prompt_print
+    done
+    echo "%b"
+    echo "%F{117} ➤  %f"
 }
-PROMPT_RET='$(prompt_ret)'
-PROMPT_USER='$(pfg=16 pbg=114 pnc=142 prompt_line "%n")'
-PROMPT_HOSTNAME='$(pfg=16 pbg=142 pnc=42 prompt_line "%M")'
-PROMPT_DATE='$(pfg=16 pbg=42 pnc=36 prompt_line $(date "+%Y-%m-%d"))'
-PROMPT_TIME='$(pfg=16 pbg=36 pnc=29 prompt_line $(date "+%H:%M:%S"))'
-PROMPT_TZ='$(pfg=16 pbg=29 pnc=223 prompt_line $(date "+%Z"))'
-PROMPT_WORKDIR='$(pfg=16 pbg=223 pnc=38 prompt_line "%~")'
-PROMPT_GO_VERSION='$(pfg=16 pbg=38 pnc=68 prompt_line $(go version | cut -d " " -f 3))'
-PROMPT_GIT_BRANCH='$(pfg=16 pbg=68 pnc=16 prompt_line $(git branch --show-current 2&> /dev/null | xargs -I branch echo " branch"))'
-PROMPT_CMDLINE='%F{117} ➤  %f'
-PROMPT="%B${PROMPT_NEWLINE}${PROMPT_RET}${PROMPT_USER}${PROMPT_HOSTNAME}${PROMPT_DATE}${PROMPT_TIME}${PROMPT_TZ}${PROMPT_WORKDIR}${PROMPT_GO_VERSION}${PROMPT_GIT_BRANCH}%b${PROMPT_NEWLINE}${PROMPT_CMDLINE}"
+PROMPT='$(prompt)'
 
 # =============== fzf =============== #
 
