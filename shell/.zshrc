@@ -52,7 +52,7 @@ prompt() {
     prompt_configs+=("114" "16" "%n")
     prompt_configs+=("142" "16" "%M")
     prompt_configs+=("42"  "16" "$(date "+%Y-%m-%d")")
-    prompt_configs+=("36"  "16" "$(date "+%H:%M:%S %Z")")
+    prompt_configs+=("36"  "16" "$(date "+%H:%M:%S")")
     prompt_configs+=("29"  "16" "$(date "+%Z")")
     prompt_configs+=("223" "16" "%~")
     prompt_configs+=("38"  "16" "$(go version | cut -d " " -f 3)")
