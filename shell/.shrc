@@ -9,6 +9,7 @@ export LC_ALL=C.utf8
 export LC_CTYPE=C.utf8
 export LC_MESSAGES=C.utf8
 export LESSCHARSET=utf-8
+export TZ=Asia/Shanghai
 
 # display
 export REMOTE_IP=`who am i | sed 's/.*(\(.*\)).*/\1/g'`
@@ -145,6 +146,17 @@ gov() {
     done
 
     shift $((OPTIND -1))
+
+    if ! command -v go >/dev/null 2>&1 ; then
+        default_go_version=go1.22.4
+        pushd /tmp
+            curl -sSLO https://go.dev/dl/${default_go_version}.linux-amd64.tar.gz
+            rm -rf /usr/local/go && tar -C /usr/local -xzf ${default_go_version}.linux-amd64.tar.gz
+            rm -f ${default_go_version}.linux-amd64.tar.gz
+        popd
+        mkdir -p ${GOPATH} ${GOBIN}
+        export PATH=$PATH:/usr/local/go/bin
+    fi
 
     local_versions=($(ls ${GOBIN} | grep -E 'go[0-9]+\.[0-9]+\.[0-9]+' | sort -r))
     if [ -n "$remote_versions" ]; then
