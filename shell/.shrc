@@ -3,12 +3,12 @@
 # =============== Environment Variable =============== #
 
 # locales
-export LANGUAGE=C.utf8
-export LANG=C.utf8
-export LC_ALL=C.utf8
-export LC_CTYPE=C.utf8
-export LC_MESSAGES=C.utf8
-export LESSCHARSET=utf-8
+export LANGUAGE=C.UTF-8
+export LANG=C.UTF-8
+# export LC_ALL=C.UTF-8
+# export LC_CTYPE=C.UTF-8
+# export LC_MESSAGES=C.UTF-8
+# export LESSCHARSET=utf-8
 export TZ=Asia/Shanghai
 
 # display
