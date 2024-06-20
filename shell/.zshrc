@@ -41,6 +41,13 @@ prompt_print() {
     prompt_data=${prompt_data}
     echo -n "%K{${prompt_bg}}%F{${prompt_fg}} ${prompt_data} %f%k%K{${prompt_next_bg}}%F{${prompt_bg}}${prompt_triangle}%f%k"
 }
+hostname_255() {
+    local hostname=$(hostname)
+    local hash=$(echo -n $hostname | md5sum)
+    local number=$(( 0x${hash:0:2} ))
+    local scaled_number=$(( number * 255 / 255 ))
+    echo $scaled_number
+}
 prompt() {
     ret=$?
     prompt_configs=()
@@ -50,7 +57,7 @@ prompt() {
         prompt_configs+=("223" "16" "%?")
     fi
     prompt_configs+=("114" "16" "%n")
-    prompt_configs+=("142" "16" "%M")
+    prompt_configs+=($(hostname_255) "16" "%M")
     prompt_configs+=("42"  "16" "$(date "+%Y-%m-%d")")
     prompt_configs+=("36"  "16" "$(date "+%H:%M:%S")")
     prompt_configs+=("29"  "16" "$(date "+%Z")")
