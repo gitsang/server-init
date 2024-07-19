@@ -1,0 +1,13 @@
+#!/bin/bash
+
+upload_url=https://send.cn.c8g.top
+temp_file_path=/tmp
+file_path=${1}
+file_name=$(basename ${file_path})
+if [ -d "${file_path}" ]; then
+    tgz_file_path=${temp_file_path}/${file_name}.tar.gz
+    tar -zcvf ${tgz_file_path} -C ${file_path} .
+    curl -T ${tgz_file_path} ${upload_url}/${file_name}.tar.gz
+elif [ -f "${file_path}" ]; then
+    curl -T ${file_path} ${upload_url}/${file_name}
+fi

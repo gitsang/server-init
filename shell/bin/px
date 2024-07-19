@@ -1,0 +1,39 @@
+#!/bin/bash
+
+PROXY_HOST=localhost
+
+case "$1" in
+    "-c"|"--clean")
+        export {HTTP,http,HTTPS,https,FTP,ftp}_{PROXY,proxy}=""
+        ;;
+    "-s"|"--set")
+        case "$2" in
+            "clash")
+                export {HTTP,http,HTTPS,https,FTP,ftp}_{PROXY,proxy}="http://${PROXY_HOST}:7890"
+                ;;
+            "home")
+                export {HTTP,http,HTTPS,https,FTP,ftp}_{PROXY,proxy}="http://${PROXY_HOST}:7490"
+                ;;
+            *)
+                ;;
+        esac
+        export NO_PROXY="localhost,127.0.0.1,[::1]"
+        ;;
+    *)
+        echo "help:"
+        echo "    -h, --help           help"
+        echo "    -l, --list           list current proxy"
+        echo "    -c, --clean          clean proxy"
+        echo "    -s, --set [location] set proxy"
+        echo "              clash      (7890)"
+        echo "              home       (7490)"
+        ;;
+esac
+
+echo ""
+echo "http_proxy:  $http_proxy"
+echo "https_proxy: $https_proxy"
+echo "ftp_proxy:   $ftp_proxy"
+echo "HTTP_PROXY:  $HTTP_PROXY"
+echo "HTTPS_PROXY: $HTTPS_PROXY"
+echo "FTP_PROXY:   $FTP_PROXY"
