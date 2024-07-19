@@ -192,7 +192,6 @@ alias p='podman'
 alias pps='podman ps --format "table {{.Image}}\t{{.Networks}}\t{{.Status}}\t{{.RunningFor}}\t{{.State}}\t{{.Names}}"'
 
 # vim
-alias vi='nvim'
 alias nv='nvim'
 
 # cache
