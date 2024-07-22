@@ -34,11 +34,11 @@ autoload -U colors && colors
 # prompt
 setopt prompt_subst
 prompt_print() {
-    prompt_triangle=$'\uE0B0'
-    prompt_bg=${prompt_bg:-223}
-    prompt_fg=${prompt_fg:-16}
-    prompt_next_bg=${prompt_next_bg:-16}
-    prompt_data=${prompt_data}
+    local prompt_triangle=$'\uE0B0'
+    local prompt_bg=${prompt_bg:-223}
+    local prompt_fg=${prompt_fg:-16}
+    local prompt_next_bg=${prompt_next_bg:-16}
+    local prompt_data=${prompt_data}
     echo -n "%K{${prompt_bg}}%F{${prompt_fg}} ${prompt_data} %f%k%K{${prompt_next_bg}}%F{${prompt_bg}}${prompt_triangle}%f%k"
 }
 colorcode() {
@@ -49,22 +49,19 @@ colorcode() {
     echo $scaled_number
 }
 proxy_geo() {
-    tty=$(tty | sed 's/\/dev\/pts\///')
-    proxy_record="/tmp/.proxy_record_tty${tty}"
-    geo_file="/tmp/.proxy_geo_tty${tty}"
-    # proxy
-    last_proxy="$(cat ${proxy_record} 2> /dev/null)"
-    now_proxy="${http_proxy}${https_proxy}${HTTP_PROXY}${HTTPS_PROXY}"
+    local tty=$(tty | sed 's/\/dev\/pts\///')
+    local proxy_record="/tmp/.proxy_record_tty${tty}"
+    local geo_file="/tmp/.proxy_geo_tty${tty}"
+    local last_proxy="$(cat ${proxy_record} 2> /dev/null)"
+    local now_proxy="${http_proxy}|${https_proxy}|${HTTP_PROXY}|${HTTPS_PROXY}"
+    local geo_file_mod_time=$(stat -c %Y ${geo_file} 2> /dev/null)
     echo "${now_proxy}" > ${proxy_record}
     if [[ "${last_proxy}" != "${now_proxy}" ]]; then
         curl -s "https://ipinfo.io/json" 2> /dev/null > ${geo_file}
     fi
-    # mod time
-    geo_file_mod_time=$(stat -c %Y ${geo_file} 2> /dev/null)
     if [[ $(( $(date +%s) - ${geo_file_mod_time} )) -gt 300 ]]; then
         nohup curl -s "https://ipinfo.io/json" 2> /dev/null > ${geo_file} &
     fi
-    # print
     if [[ -f "${geo_file}" ]]; then
         cat ${geo_file} | jq -r '"\(.city) (\(.country))"'
     fi
