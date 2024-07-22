@@ -66,9 +66,11 @@ fuck() {
     if [ $# -eq 1 ] && [ "$1" == "-" ]; then
         su - root
     elif [ $# -gt 0 ]; then
-        sudo "$@"
+        # shellcheck disable=SC2068
+        sudo $@
     else
-        sudo "$(fc -ln -1)"
+        # shellcheck disable=SC2046
+        sudo $(fc -ln -1)
     fi
 }
 
@@ -108,14 +110,14 @@ alias tailf='tail -f'
 dirdiff() {
     DIR1=$(printf '%q' "$1"); shift
     DIR2=$(printf '%q' "$1"); shift
-    nvim "$@" -c "DirDiff $DIR1 $DIR2"
+    # shellcheck disable=SC2068
+    nvim $@ -c "DirDiff $DIR1 $DIR2"
 }
 
-# golang
 # docker
 alias d='docker'
 alias dps='docker ps --format "table {{.Image}}\t{{.Networks}}\t{{.Status}}\t{{.RunningFor}}\t{{.State}}\t{{.Names}}"'
-alias rekcod="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock nexdrew/rekcod"
+alias rekcod='docker run --rm -v /var/run/docker.sock:/var/run/docker.sock nexdrew/rekcod'
 
 # k8s
 alias k='kubectl'
@@ -139,7 +141,7 @@ dropcaches() {
 # jobs
 alias j='jobs'
 kj() {
-    kill -9 "%$*"
+    kill -9 "%${1}"
 }
 
 # tmpfile
@@ -188,32 +190,8 @@ alias gps='git push'
 alias gpl='git pull'
 alias gf='git fetch'
 alias gt='git for-each-ref --sort=creatordate --format "%(creatordate): %(refname)" refs/tags'
-gd() {
-    if [[ ${#} -eq 0 ]]; then
-        git diff
-    elif [[ ${#} -eq 1 ]]; then
-        if [[ ${1} =~ ^[0-9a-z]{7}$ ]]; then
-            git diff "${1}~1" "${1}"
-        else
-            git diff "${@}"
-        fi
-    else
-        git diff "${@}"
-    fi
-}
-gdt() {
-    if [[ ${#} -eq 0 ]]; then
-        git difftool
-    elif [[ ${#} -eq 1 ]]; then
-        if [[ ${1} =~ ^[0-9a-z]{7}$ ]]; then
-            git difftool "${1}~1" "${1}"
-        else
-            git difftool "${@}"
-        fi
-    else
-        git difftool "${@}"
-    fi
-}
+alias gd='git diff'
+alias gdt='git difftool'
 gtps() {
     TAG=${1}
     git tag "${TAG}"
