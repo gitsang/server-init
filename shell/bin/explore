@@ -3,12 +3,12 @@
 server_net_interface=eth0
 server_ip=$(ip a | grep ${server_net_interface} | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -n1)
 server_port=8080
-data_path=$(realpath ${1})
+data_path=$(realpath "${1}")
 echo "serving ${data_path} on http://${server_ip}:${server_port}"
 docker run -it --rm \
-    --user $(id -u):$(id -g) \
-    -p ${server_port}:8080 \
-    -v ${data_path}:/data \
+    --user "$(id -u):$(id -g)" \
+    -p "${server_port}:8080" \
+    -v "${data_path}:/data" \
     hurlenko/filebrowser \
         --noauth \
         --root=/data \
