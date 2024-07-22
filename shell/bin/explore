@@ -1,14 +1,17 @@
 #!/bin/bash
 
-server_net_interface=eth0
-server_ip=$(ip a | grep ${server_net_interface} | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -n1)
-server_port=8080
-data_path=$(realpath "${1}")
-echo "serving ${data_path} on http://${server_ip}:${server_port}"
+# shellcheck source=/dev/null
+source ~/.local/etc/explore.conf
+
+SERVER_IP=$(ip a | grep "${SERVER_NET_INTERFACE}" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -n1)
+SERVER_PORT=$(shuf -i 1024-49151 -n 1)
+DATA_PATH=$(realpath "${1}")
+
+echo "serving ${DATA_PATH} on http://${SERVER_IP}:${SERVER_PORT}"
 docker run -it --rm \
     --user "$(id -u):$(id -g)" \
-    -p "${server_port}:8080" \
-    -v "${data_path}:/data" \
+    -p "${SERVER_PORT}:8080" \
+    -v "${DATA_PATH}:/data" \
     hurlenko/filebrowser \
         --noauth \
         --root=/data \
