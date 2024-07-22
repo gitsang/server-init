@@ -3,6 +3,7 @@
 # shellcheck source=/dev/null
 source "${HOME}/.local/etc/explore.conf"
 
+SERVER_NET_INTERFACE=${SERVER_NET_INTERFACE:-eth0}
 SERVER_IP=$(ip a | grep "${SERVER_NET_INTERFACE}" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -n1)
 SERVER_PORT=$(shuf -i 1024-49151 -n 1)
 DATA_PATH=$(realpath "${1}")
