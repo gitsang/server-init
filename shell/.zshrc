@@ -41,12 +41,33 @@ prompt_print() {
     prompt_data=${prompt_data}
     echo -n "%K{${prompt_bg}}%F{${prompt_fg}} ${prompt_data} %f%k%K{${prompt_next_bg}}%F{${prompt_bg}}${prompt_triangle}%f%k"
 }
-hostname_255() {
-    local hostname=$(hostname)
-    local hash=$(echo -n $hostname | md5sum)
-    local number=$(( 0x${hash:0:2} ))
-    local scaled_number=$(( number * 255 / 255 ))
+colorcode() {
+    local text=${1}
+    local hash=$(echo -n ${text} | md5sum | cut -d ' ' -f 1)
+    local number=$(( 0x${hash:0:4} ))
+    local scaled_number=$(( number % 255 ))
     echo $scaled_number
+}
+proxy_geo() {
+    tty=$(tty | sed 's/\/dev\/pts\///')
+    proxy_record="/tmp/.proxy_record_tty${tty}"
+    geo_file="/tmp/.proxy_geo_tty${tty}"
+    # proxy
+    last_proxy="$(cat ${proxy_record} 2> /dev/null)"
+    now_proxy="${http_proxy}${https_proxy}${HTTP_PROXY}${HTTPS_PROXY}"
+    echo "${now_proxy}" > ${proxy_record}
+    if [[ "${last_proxy}" != "${now_proxy}" ]]; then
+        curl -s "https://ipinfo.io/json" 2> /dev/null > ${geo_file}
+    fi
+    # mod time
+    geo_file_mod_time=$(stat -c %Y ${geo_file} 2> /dev/null)
+    if [[ $(( $(date +%s) - ${geo_file_mod_time} )) -gt 300 ]]; then
+        nohup curl -s "https://ipinfo.io/json" 2> /dev/null > ${geo_file} &
+    fi
+    # print
+    if [[ -f "${geo_file}" ]]; then
+        cat ${geo_file} | jq -r '"\(.city) (\(.country))"'
+    fi
 }
 prompt() {
     ret=$?
@@ -57,12 +78,13 @@ prompt() {
         prompt_configs+=("223" "16" "%?")
     fi
     prompt_configs+=("114" "16" "%n")
-    prompt_configs+=($(hostname_255) "16" "%M")
+    prompt_configs+=("$(colorcode "$(hostname)")" "16" "%M")
     prompt_configs+=("42"  "16" "$(date "+%Y-%m-%d")")
     prompt_configs+=("36"  "16" "$(date "+%H:%M:%S")")
     prompt_configs+=("29"  "16" "$(date "+%Z")")
     prompt_configs+=("223" "16" "%~")
     prompt_configs+=("38"  "16" "$(go version | cut -d " " -f 3)")
+    prompt_configs+=("$(colorcode "$(proxy_geo)")" "16" "$(proxy_geo)")
     prompt_configs+=("68"  "16" "$(git branch --show-current 2&> /dev/null | xargs -I branch echo " branch")")
     echo "%B"
     for (( i=1; i<${#prompt_configs[@]}; i+=3 )); do
