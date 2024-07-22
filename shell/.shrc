@@ -12,8 +12,9 @@ export LANG=C.UTF-8
 export TZ=Asia/Shanghai
 
 # display
-export REMOTE_IP=`who am i | sed 's/.*(\(.*\)).*/\1/g'`
-export DISPLAY=${REMOTE_IP}:0.0
+REMOTE_IP="$(who am i | sed 's/.*(\(.*\)).*/\1/g')"
+export REMOTE_IP=${REMOTE_IP}
+export DISPLAY="${REMOTE_IP}:0.0"
 
 # path
 export PATH=$PATH:/sbin/:/bin:/usr/sbin:/usr/bin:~/.local/bin:/usr/local/bin:.
@@ -65,9 +66,9 @@ fuck() {
     if [ $# -eq 1 ] && [ "$1" == "-" ]; then
         su - root
     elif [ $# -gt 0 ]; then
-        sudo $@
+        sudo "$@"
     else
-        sudo $(fc -ln -1)
+        sudo "$(fc -ln -1)"
     fi
 }
 
@@ -107,78 +108,10 @@ alias tailf='tail -f'
 dirdiff() {
     DIR1=$(printf '%q' "$1"); shift
     DIR2=$(printf '%q' "$1"); shift
-    nvim $@ -c "DirDiff $DIR1 $DIR2"
-}
-
-# network
-wip() {
-    echo -e "\n\e[32m=====cip=====\e[0m"
-    curl cip.cc
-
-    echo -e "\n\e[32m=====default=====\e[0m"
-    ip=$(curl -s ifconfig.co)
-    curl -s cip.cc/$ip
-
-    echo -e "\n\e[32m=====v6=====\e[0m"
-    ip=$(curl -s -6 ifconfig.co)
-    curl -s cip.cc/$ip
-
-    echo -e "\n\e[32m=====v4=====\e[0m"
-    ip=$(curl -s -4 ifconfig.co)
-    curl -s cip.cc/$ip
+    nvim "$@" -c "DirDiff $DIR1 $DIR2"
 }
 
 # golang
-gov() {
-    local remote_versions
-    local local_versions
-    local optional_versions
-
-    while getopts "r" opt; do
-        case ${opt} in
-            r)
-                remote_versions=$(curl -sL https://golang.org/dl/ | grep -o 'go[0-9.]*\.linux-amd64.tar.gz' | sed 's/\.linux-amd64.tar.gz//g' | uniq)
-                ;;
-            *)
-                echo "Invalid option: -$OPTARG" >&2
-                ;;
-        esac
-    done
-
-    shift $((OPTIND -1))
-
-    if ! command -v go >/dev/null 2>&1 ; then
-        default_go_version=go1.22.4
-        pushd /tmp
-            curl -sSLO https://go.dev/dl/${default_go_version}.linux-amd64.tar.gz
-            rm -rf /usr/local/go && tar -C /usr/local -xzf ${default_go_version}.linux-amd64.tar.gz
-            rm -f ${default_go_version}.linux-amd64.tar.gz
-        popd
-        mkdir -p ${GOPATH} ${GOBIN}
-        export PATH=$PATH:/usr/local/go/bin
-    fi
-
-    local_versions=($(ls ${GOBIN} | grep -E 'go[0-9]+\.[0-9]+\.[0-9]+' | sort -r))
-    if [ -n "$remote_versions" ]; then
-        optional_versions=(${remote_versions})
-    else
-        optional_versions=(${local_versions})
-    fi
-
-    selected_version=$(printf "%s\n" "${optional_versions[@]}" | fzf --height 40% --layout reverse)
-    if [ -n "$selected_version" ]; then
-        echo "Selected Go version ${selected_version}"
-        if [ ! -f "${GOBIN}/${selected_version}" ]; then
-            go install "golang.org/dl/${selected_version}@latest"
-        fi
-        ln -rsf "${GOBIN}/${selected_version}" "${GOBIN}/go"
-        if [ ! -d "~/sdk/${selected_version}" ]; then
-            go download
-        fi
-    fi
-    go version
-}
-
 # docker
 alias d='docker'
 alias dps='docker ps --format "table {{.Image}}\t{{.Networks}}\t{{.Status}}\t{{.RunningFor}}\t{{.State}}\t{{.Names}}"'
@@ -206,30 +139,7 @@ dropcaches() {
 # jobs
 alias j='jobs'
 kj() {
-    kill -9 %$@
-}
-
-# codec
-b64() {
-    echo -n $1 | base64 -d
-}
-
-# explore
-explore() {
-    server_net_interface=enp1s0
-    server_ip=$(ip a | grep ${server_net_interface} | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -n1)
-    server_port=8080
-    data_path=$(realpath ${1})
-    echo "serving ${data_path} on http://${server_ip}:${server_port}"
-    docker run -it --rm \
-        --user $(id -u):$(id -g) \
-        -p ${server_port}:8080 \
-        -v ${data_path}:/data \
-        hurlenko/filebrowser \
-            --noauth \
-            --root=/data \
-            --address=0.0.0.0 \
-            --database=/config/filebrowser.db
+    kill -9 "%$*"
 }
 
 # tmpfile
@@ -240,28 +150,28 @@ tmp() {
     case ${OPT} in
         dir)
             TMPDIR=${TMPROOT}/${DATE}
-            mkdir -p ${TMPDIR}
+            mkdir -p "${TMPDIR}"
             echo -n "Change Dir? (Default:Y) [Y/n]"
-            read input
+            read -r input
             case $input in
                 [yY][eE][sS]|[yY]|"")
-                    cd ${TMPDIR}
+                    cd "${TMPDIR}" || exit
                     ;;
             esac
             ;;
         *)
             TMPFILE=${TMPROOT}/${DATE}.${OPT}
-            nvim ${TMPFILE}
+            nvim "${TMPFILE}"
             ;;
     esac
 }
 
 # make
 mk() {
-    relate_path=$(realpath $(git rev-parse --show-toplevel) --relative-to=.)
-    pushd ${relate_path}
-        make ${@}
-    popd
+    relate_path=$(realpath "$(git rev-parse --show-toplevel)" --relative-to=.)
+    pushd "${relate_path}" || exit
+        make "${@}"
+    popd || exit
 }
 
 # git
@@ -279,36 +189,40 @@ alias gpl='git pull'
 alias gf='git fetch'
 alias gt='git for-each-ref --sort=creatordate --format "%(creatordate): %(refname)" refs/tags'
 gd() {
-    if [[ $# -eq 0 ]]; then
+    if [[ ${#} -eq 0 ]]; then
         git diff
-    elif [[ $# -eq 1 ]]; then
-        if [[ $1 =~ '^[0-9a-z]{7}$' ]]; then
-            git diff $1~1 $1
+    elif [[ ${#} -eq 1 ]]; then
+        if [[ ${1} =~ ^[0-9a-z]{7}$ ]]; then
+            git diff "${1}~1" "${1}"
         else
-            git diff $@
+            git diff "${@}"
         fi
     else
-        git diff $@
+        git diff "${@}"
     fi
 }
 gdt() {
-    if [ $# -eq 0 ]; then
+    if [[ ${#} -eq 0 ]]; then
         git difftool
-    elif [ $# -eq 1 ]; then
-        git difftool $1~1 $1
+    elif [[ ${#} -eq 1 ]]; then
+        if [[ ${1} =~ ^[0-9a-z]{7}$ ]]; then
+            git difftool "${1}~1" "${1}"
+        else
+            git difftool "${@}"
+        fi
     else
-        git difftool $@
+        git difftool "${@}"
     fi
 }
 gtps() {
     TAG=${1}
-    git tag ${TAG}
-    git push origin ${TAG}
+    git tag "${TAG}"
+    git push origin "${TAG}"
 }
 gau() {
-    pushd $(git rev-parse --show-toplevel)
+    pushd "$(git rev-parse --show-toplevel)" || exit
         git add --all .
-        branch=$(git branch | grep "*" | awk '{print $NF}')
+        branch=$(git branch | grep "\*" | awk '{print $NF}')
         modified=$(git status | grep -E "modified" | awk '{print "\t" $NF}')
         deleted=$(git status | grep -E "deleted" | awk '{print "\t" $NF}')
         new_file=$(git status | grep -E "new file" | awk '{print "\t" $NF}')
@@ -328,137 +242,16 @@ gau() {
         fi
         if [ -n "$modified" ] || [ -n "$deleted" ] || [ -n "$new_file" ] || [ -n "$renamed" ]; then
             echo -e "$commit_message" | git commit -F -
-            git push origin ${branch}
+            git push origin "${branch}"
         else
             echo "No changes to commit."
         fi
-    popd
+    popd || exit
 }
 grb() {
     if [ ${#1} -gt 3 ]; then
-        git rebase -i ${1}
+        git rebase -i "${1}"
     else
-        git rebase -i HEAD~${1}
+        git rebase -i "HEAD~${1}"
     fi
-}
-
-# trash
-alias del='trash'
-trash() {
-    case "$1" in
-        "help"|"-h")
-            echo "usage: trash [ clean(-c) | recover(-r) | backup(-b) | help(-h) ]"
-            ;;
-        "recover"|"-r")
-            shift
-            TRASH_DIR=~/.trash
-            REAL_PATH=`echo $@ | awk -F'-%TRASH%-' '{print $2}' | sed 's/##/\//g'`
-
-            if [ -f "$REAL_PATH" ]; then
-                echo "file exist: $REAL_PATH"
-            elif [ -d "$REAL_PATH" ]; then
-                echo "folder exist: $REAL_PATH"
-            else
-                mv $@ $REAL_PATH
-                echo "recover $@ to $REAL_PATH"
-            fi
-            ;;
-        "clean"|"-c")
-            TRASH_DIR=~/.trash
-            MAX_TRASH_SIZE=20000000
-            TRASH_SIZE=`du --max-depth=0 $TRASH_DIR | awk '{print $1}'`
-
-            while [ $TRASH_SIZE -gt $MAX_TRASH_SIZE ]
-            do
-                echo "trash-size: $TRASH_SIZE > $MAX_TRASH_SIZE clean up:" && ls $TRASH_DIR | grep -v total | head -1
-                ls $TRASH_DIR | grep -v total | head -1 | xargs -i -n1 rm -fr $TRASH_DIR/{}
-                TRASH_SIZE=`du --max-depth=0 $TRASH_DIR | awk '{print $1}'`
-            done
-            echo "trash-size: $TRASH_SIZE"
-            ;;
-        "backup"|"-b")
-            BACKUP_DIR=~/.trash
-            REAL_PATH=`realpath $2`
-            BACKUP_NAME=`realpath $2 | sed 's/\//##/g'`
-            TIME=`date "+%Y%m%d-%H%M%S"`
-            BACKUP_PATH=$BACKUP_DIR/$TIME-%BACKUP%-$BACKUP_NAME
-
-            if [ "$REAL_PATH" != "/" ]; then
-                mkdir -p $BACKUP_DIR
-                cp -r $REAL_PATH $BACKUP_PATH
-                echo "backup $REAL_PATH to $BACKUP_PATH"
-            fi
-            ;;
-        *)
-            TRASH_DIR=~/.trash
-            for input in ${@[@]}; do
-                REAL_PATH=`realpath $input`
-                TRASH_NAME=`realpath $input | sed 's/\//##/g'`
-                TIME=`date "+%Y%m%d-%H%M%S"`
-                TRASH_PATH=$TRASH_DIR/$TIME-%TRASH%-$TRASH_NAME
-
-                if [ "$REAL_PATH" != "/" ]; then
-                    mkdir -p $TRASH_DIR
-                    mv $REAL_PATH $TRASH_PATH
-                    echo "del $REAL_PATH to $TRASH_PATH"
-                fi
-            done
-            ;;
-    esac
-}
-
-# upload
-upload() {
-    upload_url=https://send.cn.c8g.top
-    temp_file_path=/tmp
-    file_path=${1}
-    file_name=$(basename ${file_path})
-    if [ -d "${file_path}" ]; then
-        tgz_file_path=${temp_file_path}/${file_name}.tar.gz
-        tar -zcvf ${tgz_file_path} -C ${file_path} .
-        curl -T ${tgz_file_path} ${upload_url}/${file_name}.tar.gz
-    elif [ -f "${file_path}" ]; then
-        curl -T ${file_path} ${upload_url}/${file_name}
-    fi
-}
-
-# proxy
-alias px='proxy'
-proxy() {
-    PROXY_HOST=localhost
-    case "$1" in
-        "-c"|"--clean")
-            export {HTTP,http,HTTPS,https,FTP,ftp}_{PROXY,proxy}=""
-            ;;
-        "-s"|"--set")
-            case "$2" in
-                "clash")
-                    export {HTTP,http,HTTPS,https,FTP,ftp}_{PROXY,proxy}="http://${PROXY_HOST}:7890"
-                    ;;
-                "home")
-                    export {HTTP,http,HTTPS,https,FTP,ftp}_{PROXY,proxy}="http://${PROXY_HOST}:7490"
-                    ;;
-                *)
-                    ;;
-            esac
-            export NO_PROXY="localhost,127.0.0.1,[::1]"
-            ;;
-        *)
-            echo "help:"
-            echo "    -h, --help           help"
-            echo "    -l, --list           list current proxy"
-            echo "    -c, --clean          clean proxy"
-            echo "    -s, --set [location] set proxy"
-            echo "              clash      (7890)"
-            echo "              home       (7490)"
-            ;;
-    esac
-
-    echo ""
-    echo "http_proxy:  $http_proxy"
-    echo "https_proxy: $https_proxy"
-    echo "ftp_proxy:   $ftp_proxy"
-    echo "HTTP_PROXY:  $HTTP_PROXY"
-    echo "HTTPS_PROXY: $HTTPS_PROXY"
-    echo "FTP_PROXY:   $FTP_PROXY"
 }

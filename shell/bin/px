@@ -44,7 +44,8 @@ zsh_main() {
     done
 }
 
-source ~/.local/etc/px.conf
+# shellcheck source=/dev/null
+source "${HOME}/.local/etc/px.conf"
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     echo "Please source this script:"
