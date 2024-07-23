@@ -1,7 +1,7 @@
 {
   "suggest.noselect": true,
   "suggest.enablePreselect": false,
-  "[py][go][golang][rust][lua][c][js][markdown]": {
+  "[py][python][go][golang][rust][lua][c][js][javascript][markdown]": {
     "coc.preferences.formatOnSave": true,
     "coc.preferences.formatOnType": true
   },

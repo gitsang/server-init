@@ -165,8 +165,12 @@ call plug#begin()
             let g:airline#extensions#branch#enabled = 1
             let g:airline#extensions#branch#vcs_priority = ["git", "mercurial"]
 
-            " time
-            let g:airline_section_b = '%{strftime("%H:%M:%S")}'
+            " section
+            function! AirlineInit()
+                let g:airline_section_a = airline#section#create_left(['mode', '%{ZFVimIME_IMEStatusline()}'])
+                let g:airline_section_b = airline#section#create_left(['%{strftime("%H:%M:%S")}'])
+            endfunction
+            autocmd User AirlineAfterInit call AirlineInit()
 
             nmap <leader>1 <Plug>AirlineSelectTab1
             nmap <leader>2 <Plug>AirlineSelectTab2
@@ -264,6 +268,10 @@ call plug#begin()
     "--------------------
     " Coding Support
     "--------------------
+
+    "[converter]"
+
+        Plug 'gitsang/vim-case-converter'
 
     "[CoC]"
 
@@ -473,6 +481,8 @@ call plug#begin()
                 \ 'go': ['go vet', 'go fmt'],
                 \ }
 
+        Plug 'itspriddle/vim-shellcheck'
+
     "[formater]"
 
         " Vim tools for comment stuff out
@@ -577,7 +587,58 @@ call plug#begin()
             let g:vmt_list_item_char = '-'
             let g:vmt_include_headings_before = 1
             let g:vmt_list_indent_text = '  '
+            let g:vmt_link = 1
+            let g:vmt_min_level = 1
+            let g:vmt_max_level = 6
             " :GenToc
+
+    "[todo]"
+        Plug 'nvim-lua/plenary.nvim'
+        Plug 'folke/todo-comments.nvim'
+
+    "[im]"
+
+        Plug 'ZSaberLv0/ZFVimIM'
+        Plug 'ZSaberLv0/ZFVimJob'
+            let g:ZFVimIM_key_pageUp = [',']
+            let g:ZFVimIM_key_pageDown = ['.']
+            let g:ZFVimIM_showKeyHint = 0
+            let g:ZFVimIM_cachePath = $HOME.'/.cache/zfvimim'
+
+            " init
+            function! s:zfvimim_init() abort
+                let db = ZFVimIM_dbInit({
+                            \   'name' : 'Pinyin',
+                            \   'editable' : 0,
+                            \ })
+                call ZFVimIM_cloudRegister({
+                            \   'mode' : 'local',
+                            \   'dbId' : db['dbId'],
+                            \   'repoPath' : expand('~/.local/share/nvim/zfvimim/ZFVimIM_pinyin_base/misc'),
+                            \   'dbFile' : 'pinyin.txt',
+                            \   'dbCountFile' : 'pinyin_count.txt',
+                            \ })
+            endfunction
+            if exists('*ZFVimIME_initFlag') && ZFVimIME_initFlag()
+                call s:zfvimim_init()
+            else
+                autocmd User ZFVimIM_event_OnDbInit call s:zfvimim_init()
+            endif
+
+            " add word checker
+            function! NopChecker(userWord)
+                return 0
+            endfunction
+            let g:ZFVimIM_autoAddWordChecker=[function('NopChecker')]
+
+            " key map
+            let g:ZFVimIM_keymap = 0
+            inoremap <expr><silent> <c-a> ZFVimIME_keymap_toggle_i()
+            nnoremap <expr><silent> <c-a> ZFVimIME_keymap_toggle_n()
+
+            " status
+            let g:ZFVimIME_IMEStatus_tagL = '['
+            let g:ZFVimIME_IMEStatus_tagR = ']'
 
 call plug#end()
 
@@ -630,16 +691,59 @@ endfunction
 :command -nargs=1 -complete=command ReadCommand redir @">|exe "<args>"|:redir END<CR>
 
 "--------------------
+" Bash
+"--------------------
+
+:command -nargs=* Bash call Bash (<f-args>)
+function! Bash(...)
+    let current_file = expand("%:t")
+    if a:0
+        execute 'AsyncRun -mode=term -focus=0 -rows=10 bash' a:1
+    else
+        execute 'AsyncRun -mode=term -focus=0 -rows=10 bash' current_file
+    endif
+endfunction
+
+:command -nargs=* SuBash call SuBash (<f-args>)
+function! SuBash(...)
+    let current_file = expand("%:t")
+    if a:0
+        execute 'AsyncRun -mode=term -focus=0 -rows=10 sudo bash' a:1
+    else
+        execute 'AsyncRun -mode=term -focus=0 -rows=10 sudo bash' current_file
+    endif
+endfunction
+
+"--------------------
 " Golang
 "--------------------
 
 :command -nargs=* GoTest call GoTest(<f-args>)
 function! GoTest(...)
-    if a:0
-        execute 'AsyncRun -mode=term -focus=0 -rows=10 go test -v . -test.run' a:1
-    else
-        execute 'AsyncRun -mode=term -focus=0 -rows=10 go test -v ./...'
+    let cmds = ['AsyncRun']
+    call add(cmds, '-mode=term')
+    call add(cmds, '-focus=0')
+    call add(cmds, '-rows=10')
+    call add(cmds, 'go test')
+    call add(cmds, '-v')
+    if a:0 > 0
+        let test_location = a:1
+        call add(cmds, test_location)
     endif
+    if a:0 > 1
+        let test_name = a:2
+        if test_name != '--'
+            call add(cmds, '-test.run')
+            call add(cmds, test_name)
+        endif
+    endif
+    if a:0 > 2
+        for i in range(3, a:0)
+            call add(cmds, a:[i])
+        endfor
+    endif
+
+    execute join(cmds, " ")
 endfunction
 
 :command -nargs=* GoRun call GoRun(<f-args>)
@@ -673,6 +777,7 @@ endfunction
 
 :command -range -nargs=* GoTagsAdd <line1>,<line2>call GoTagsAdd(<f-args>)
 function! GoTagsAdd(...) range
+    execute 'w'
     let filename = expand('%:t')
     let line = a:firstline . ',' . a:lastline
     let cmds = ['!gomodifytags']
@@ -720,6 +825,7 @@ endfunction
 
 :command -range -nargs=* GoTagsRemove <line1>,<line2>call GoTagsRemove(<f-args>)
 function! GoTagsRemove(...) range
+    execute 'w'
     let filename = expand('%:t')
     let line = a:firstline . ',' . a:lastline
     let cmds = ['!gomodifytags']
@@ -813,9 +919,6 @@ endfunction
 "--------------------
 " Format
 "--------------------
-
-" converter
-source ~/.config/nvim/converter.vim
 
 " remove trailing spaces
 :command RemoveTrailingSpaces call RemoveTrailingSpaces()
