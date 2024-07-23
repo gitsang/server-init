@@ -1,5 +1,4 @@
 #!/bin/bash
 
-mkdir -p ~/.local/{bin,etc}
+mkdir -p ~/.local/bin
 rsync -avPh ./bin/* ~/.local/bin/
-# rsync -avPh ./etc/* ~/.local/etc/
