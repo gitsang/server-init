@@ -29,7 +29,8 @@ case "${SERVER_DRIVER}" in
             -p 445:445 \
             -v "${DATA_PATH}:/share" \
             dperson/samba \
-                -s "share;/share"
+                -u "samba;;$(id -u);samba;$(id -g)" \
+                -s "share;/share;yes;no;yes;;samba;;"
         ;;
     ftp)
         SERVER_PORT=$(shuf -i 1024-49151 -n 1)
