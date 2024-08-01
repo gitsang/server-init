@@ -16,7 +16,7 @@ zsh_main() {
     if [[ "$#" -eq 0 ]]; then
         show_help
     fi
-    while getopts "h?lc:s:" opt; do
+    while getopts "h?lcs:" opt; do
         case "$opt" in
             l)
                 for PROXY_NAME in "${(@k)PROXY_MAP}"; do

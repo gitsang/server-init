@@ -62,7 +62,7 @@ netgeo() {
     if [[ -f "${netgeo_file}" ]]; then
         cat ${netgeo_file} | jq -r '"\(.city) (\(.country))"'
     fi
-    if [[ "${proxy_now}" -ne "${proxy_last}" ]]; then
+    if [[ "${proxy_now}" != "${proxy_last}" ]]; then
         curl -s "https://ipinfo.io/json" 2> /dev/null > ${netgeo_file}
     fi
     if [[ -z "${netgeo_modtime}" ]] || [[ $(( $(date +%s) - ${netgeo_modtime} )) -gt 300 ]]; then
@@ -137,7 +137,7 @@ set-window-title() {
     pwd_base=$(basename $PWD)
     title="${USER}@$(hostname -s) : ${pwd_base}"
 
-    git_remote=$(git remote -v | head -n1 | awk '{print $2}')
+    git_remote=$(git remote -v 2> /dev/null | head -n1 | awk '{print $2}')
     if [[ -n "${git_remote}" ]]; then
         git_repo=$(basename ${git_remote} | awk -F. '{print $1}')
         title="${git_repo} | ${title}"
