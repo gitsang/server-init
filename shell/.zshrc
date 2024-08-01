@@ -137,9 +137,10 @@ set-window-title() {
     pwd_base=$(basename $PWD)
     title="${USER}@$(hostname -s) : ${pwd_base}"
 
-    if git status > /dev/null 2>&1; then
-        gitbase=$(basename $(git remote -v | head -n1 | awk '{print $2}') | awk -F. '{print $1}')
-        title="${gitbase} | ${title}"
+    git_remote=$(git remote -v | head -n1 | awk '{print $2}')
+    if [[ -n "${git_remote}" ]]; then
+        git_repo=$(basename ${git_remote} | awk -F. '{print $1}')
+        title="${git_repo} | ${title}"
     fi
 
     window_title="\e]0;${title}\a"
