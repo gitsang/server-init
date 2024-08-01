@@ -48,22 +48,25 @@ colorcode() {
     local scaled_number=$(( number % 255 ))
     echo $scaled_number
 }
-proxy_geo() {
-    local tty=$(tty | sed 's/\/dev\/pts\///')
-    local proxy_record="/tmp/.proxy_record_tty${tty}"
-    local geo_file="/tmp/.proxy_geo_tty${tty}"
-    local last_proxy="$(cat ${proxy_record} 2> /dev/null)"
-    local now_proxy="${http_proxy}|${https_proxy}|${HTTP_PROXY}|${HTTPS_PROXY}"
-    local geo_file_mod_time=$(stat -c %Y ${geo_file} 2> /dev/null)
-    echo "${now_proxy}" > ${proxy_record}
-    if [[ "${last_proxy}" != "${now_proxy}" ]]; then
-        curl -s "https://ipinfo.io/json" 2> /dev/null > ${geo_file}
+netgeo() {
+    local tty proxy_file proxy_last proxy_now netgeo_file netgeo_modtime
+
+    tty=$(tty | sed 's/\/dev\/pts\///')
+    netgeo_file="/tmp/.netgeo_geo__tty${tty}"
+    proxy_file="/tmp/.netgeo_proxy__tty${tty}"
+
+    netgeo_modtime=$(stat -c %Y ${netgeo_file} 2> /dev/null)
+    proxy_last=$(cat ${proxy_file} 2> /dev/null)
+    proxy_now=$(echo -e "${http_proxy}\n${https_proxy}\n${HTTP_PROXY}\n${HTTPS_PROXY}" | tee "${proxy_file}")
+
+    if [[ -f "${netgeo_file}" ]]; then
+        cat ${netgeo_file} | jq -r '"\(.city) (\(.country))"'
     fi
-    if [[ $(( $(date +%s) - ${geo_file_mod_time} )) -gt 300 ]]; then
-        nohup curl -s "https://ipinfo.io/json" 2> /dev/null > ${geo_file} &
+    if [[ "${proxy_now}" -ne "${proxy_last}" ]]; then
+        curl -s "https://ipinfo.io/json" 2> /dev/null > ${netgeo_file}
     fi
-    if [[ -f "${geo_file}" ]]; then
-        cat ${geo_file} | jq -r '"\(.city) (\(.country))"'
+    if [[ -z "${netgeo_modtime}" ]] || [[ $(( $(date +%s) - ${netgeo_modtime} )) -gt 300 ]]; then
+        nohup curl -s "https://ipinfo.io/json" 2> /dev/null > ${netgeo_file} &
     fi
 }
 prompt() {
@@ -81,7 +84,7 @@ prompt() {
     prompt_configs+=("29"  "16" "$(date "+%Z")")
     prompt_configs+=("223" "16" "%~")
     prompt_configs+=("38"  "16" "$(go version | cut -d " " -f 3)")
-    prompt_configs+=("$(colorcode "$(proxy_geo)")" "16" "$(proxy_geo)")
+    prompt_configs+=("$(colorcode "$(netgeo)")" "16" "$(netgeo)")
     prompt_configs+=("68"  "16" "$(git branch --show-current 2&> /dev/null | xargs -I branch echo " branch")")
     echo "%B"
     for (( i=1; i<${#prompt_configs[@]}; i+=3 )); do
@@ -130,15 +133,13 @@ fi
 
 #DISABLE_AUTO_TITLE="true"
 set-window-title() {
-    #pwd_short=$(sed 's:\([^/]\)[^/]*/:\1/:g' <<< $PWD)
-    #title="$(hostname -s):${pwd_short}"
+    # pwd_short=$(sed 's:\([^/]\)[^/]*/:\1/:g' <<< $PWD)
     pwd_base=$(basename $PWD)
     title="${USER}@$(hostname -s) : ${pwd_base}"
 
-    git rev-parse --show-toplevel > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        gitbase=$(basename $(git rev-parse --show-toplevel))
-        title="${title} 『${gitbase}』"
+    if git status > /dev/null 2>&1; then
+        gitbase=$(basename $(git remote -v | head -n1 | awk '{print $2}') | awk -F. '{print $1}')
+        title="${gitbase} | ${title}"
     fi
 
     window_title="\e]0;${title}\a"
