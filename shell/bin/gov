@@ -19,7 +19,7 @@ if ! command -v go >/dev/null 2>&1 ; then
 fi
 
 if [[ ${#} == 0 ]]; then
-    mapfile -t OPTIONAL_VERSIONS < <(find /home/debian/.go/bin -type f -regex '.*\/go[0-9\.]*' -exec basename '{}' ';')
+    mapfile -t OPTIONAL_VERSIONS < <(find "${HOME}/.go/bin" -type f -regex '.*\/go[0-9\.]*' -exec basename '{}' ';')
 fi
 while getopts "r" opt; do
     case ${opt} in
