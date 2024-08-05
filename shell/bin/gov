@@ -1,12 +1,12 @@
 #!/bin/bash
 
 if [[ ${#} == 0 ]]; then
-    OPTIONAL_VERSIONS=($(ls ${GOBIN} | grep -E 'go[0-9]+\.[0-9]+\.[0-9]+' | sort -r))
+    mapfile -t OPTIONAL_VERSIONS < <(find /home/debian/.go/bin -type f -regex '.*\/go[0-9\.]*' -exec basename '{}' ';')
 fi
 while getopts "r" opt; do
     case ${opt} in
         r)
-            OPTIONAL_VERSIONS=($(curl -sL https://golang.org/dl/ | grep -o 'go[0-9.]*\.linux-amd64.tar.gz' | sed 's/\.linux-amd64.tar.gz//g' | uniq))
+            mapfile -t OPTIONAL_VERSIONS < <(curl -sL https://golang.org/dl/ | grep -o 'go[0-9.]*\.linux-amd64.tar.gz' | sed 's/\.linux-amd64.tar.gz//g' | uniq)
             ;;
         *)
             echo "Invalid option: -$OPTARG" >&2
