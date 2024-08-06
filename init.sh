@@ -43,19 +43,19 @@ install_prerequisite() {
         sudo apt update
         sudo apt upgrade -y
 
-        sudo apt install -y ca-certificates gnupg lsb-release
-        sudo apt install -y git
-        sudo apt install -y zip unzip wget curl
-        sudo apt install -y sysstat iotop iftop
-        sudo apt install -y autoconf automake make cmake
-        sudo apt install -y ninja-build gettext libtool libtool-bin
-        sudo apt install -y g++
-        sudo apt install -y pkg-config doxygen
-        sudo apt install -y zlib1g-dev
-        sudo apt install -y asciidoc
-        sudo apt install -y xmlto
-        sudo apt install -y libcurl4-openssl-dev
-        sudo apt install -y universal-ctags
+        sudo apt install -y --fix-missing ca-certificates gnupg lsb-release
+        sudo apt install -y --fix-missing git
+        sudo apt install -y --fix-missing zip unzip wget curl
+        sudo apt install -y --fix-missing sysstat iotop iftop
+        sudo apt install -y --fix-missing autoconf automake make cmake
+        sudo apt install -y --fix-missing ninja-build gettext libtool libtool-bin
+        sudo apt install -y --fix-missing g++
+        sudo apt install -y --fix-missing pkg-config doxygen
+        sudo apt install -y --fix-missing zlib1g-dev
+        sudo apt install -y --fix-missing asciidoc
+        sudo apt install -y --fix-missing xmlto
+        sudo apt install -y --fix-missing libcurl4-openssl-dev
+        sudo apt install -y --fix-missing universal-ctags
 
         sudo apt autoremove -y
     fi
@@ -96,7 +96,7 @@ install_fzf() {
 
 # ========================= node ========================= #
 
-node_version=v20.11.1
+node_version=v22.5.1
 node_distro=linux-x64
 node_dist=/usr/local/lib/nodejs
 
@@ -108,7 +108,7 @@ install_node() {
         if [[ ! -f ${node_prebuild_txz} ]]; then
             curl -LO ${node_prebuild_url}
         fi
-        mkdir -p ${node_dist}
+        sudo mkdir -p ${node_dist}
         sudo rm -fr ${node_dist}/node-${node_version}-${node_distro}
         sudo tar -Jxvf ${node_prebuild_txz} -C ${node_dist}
     popd
